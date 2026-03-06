@@ -1,1914 +1,756 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>My Space</title>
-    
-    <!-- Google Fonts - ฟอนต์ Kanit สำหรับภาษาไทย และ DM Mono สำหรับตัวเลข -->
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-    
-    <style>
-        /* ========================================
-           1. CSS RESET & BASE SETTINGS
-           รีเซ็ตค่าเริ่มต้นและตั้งค่าพื้นฐาน
-        ======================================== */
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
-        /* ========================================
-           2. CSS VARIABLES (DESIGN TOKENS)
-           ตัวแปรสีและขนาดต่างๆ ที่ใช้ทั่วทั้งแอป
-        ======================================== */
-        :root {
-            /* สีพื้นหลังและพื้นผิว */
-            --bg: #F5F4F0;
-            --surface: #FFFFFF;
-            --surface2: #F0EFEB;
-            --border: #E8E6E0;
-            
-            /* สีตัวอักษร */
-            --text: #1A1916;
-            --text-muted: #9B9890;
-            
-            /* สีพิเศษ */
-            --accent: #C17D3C;
-            --accent-light: #F5E8D6;
-            --danger: #C0392B;
-            --danger-light: #FDECEA;
-            --warning: #D4890A;
-            
-            /* ขนาดมุมโค้ง */
-            --radius: 18px;
-            --radius-sm: 12px;
-            
-            /* เงา */
-            --shadow: 0 2px 12px rgba(0,0,0,0.07);
-            --shadow-lg: 0 12px 40px rgba(0,0,0,0.15);
-            
-            /* ขนาดส่วนประกอบ */
-            --nav-h: 72px;        /* ความสูง bottom navigation */
-            --header-h: 60px;     /* ความสูง header */
-            --sb: env(safe-area-inset-bottom, 0px); /* safe area สำหรับ iPhone */
-        }
-        /* ========================================
-           3. GLOBAL STYLES
-           สไตล์ทั่วไปของแอป
-        ======================================== */
-        html, body {
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            font-family: 'Kanit', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            font-size: 15px;
-        }
-        #app {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
-            max-width: 430px;
-            margin: 0 auto;
-            position: relative;
-            background: var(--bg);
-            overflow: hidden;
-        }
-        /* ========================================
-           4. HEADER SECTION
-           ส่วนหัวของแอป แสดงชื่อหน้าและปุ่มเพิ่ม
-        ======================================== */
-        .app-header {
-            height: var(--header-h);
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 10;
-        }
-        .header-title {
-            font-size: 18px;
-            font-weight: 600;
-            letter-spacing: -0.3px;
-        }
-        .header-sub {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-        .header-btn {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: var(--surface2);
-            border: none;
-            cursor: pointer;
-            display: grid;
-            place-items: center;
-            color: var(--text);
-            margin-left: auto;
-            transition: background 0.15s;
-        }
-        .header-btn:active {
-            background: var(--border);
-        }
-        /* ========================================
-           5. PAGE CONTAINER
-           คอนเทนเนอร์สำหรับแต่ละหน้า
-        ======================================== */
-        .pages {
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-        }
-        .page {
-            position: absolute;
-            inset: 0;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 16px 16px calc(16px + var(--sb));
-            opacity: 0;
-            pointer-events: none;
-            transform: translateX(24px);
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            -webkit-overflow-scrolling: touch;
-        }
-        .page.active {
-            opacity: 1;
-            pointer-events: all;
-            transform: translateX(0);
-        }
-        /* ========================================
-           6. BOTTOM NAVIGATION
-           แถบเมนูด้านล่าง
-        ======================================== */
-        .bottom-nav {
-            height: var(--nav-h);
-            padding-bottom: var(--sb);
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            display: flex;
-            align-items: stretch;
-            flex-shrink: 0;
-            z-index: 20;
-        }
-        .nav-btn {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            border: none;
-            background: none;
-            cursor: pointer;
-            color: var(--text-muted);
-            font-family: 'Kanit', sans-serif;
-            font-size: 10px;
-            font-weight: 400;
-            transition: color 0.15s;
-            position: relative;
-            padding-bottom: 4px;
-        }
-        .nav-btn.active {
-            color: var(--text);
-            font-weight: 600;
-        }
-        .nav-btn.active::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 32px;
-            height: 3px;
-            background: var(--text);
-            border-radius: 0 0 3px 3px;
-        }
-        .nav-badge {
-            position: absolute;
-            top: 6px;
-            right: calc(50% - 16px);
-            background: var(--text);
-            color: white;
-            font-size: 9px;
-            font-weight: 700;
-            min-width: 16px;
-            height: 16px;
-            border-radius: 99px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 4px;
-        }
-        /* ========================================
-           7. CARD COMPONENTS
-           การ์ดและกล่องข้อมูลต่างๆ
-        ======================================== */
-        .card {
-            background: var(--surface);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            padding: 16px;
-            box-shadow: var(--shadow);
-        }
-        .section-title {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            margin: 18px 0 8px 2px;
-        }
-        .section-title:first-child {
-            margin-top: 2px;
-        }
-        /* ========================================
-           8. STATISTICS COMPONENTS
-           กล่องแสดงสถิติ
-        ======================================== */
-        .stat-strip {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-        .stat-box {
-            background: var(--surface);
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            padding: 14px 10px;
-            box-shadow: var(--shadow);
-        }
-        .stat-box-label {
-            font-size: 9px;
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .stat-box-value {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            margin-top: 4px;
-            line-height: 1;
-        }
-        .stat-box-sub {
-            font-size: 10px;
-            color: var(--text-muted);
-            margin-top: 3px;
-        }
-        /* ========================================
-           9. LIST COMPONENTS
-           รายการแบบลิสต์
-        ======================================== */
-        .list-card {
-            background: var(--surface);
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-        .list-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 13px 14px;
-            border-bottom: 1px solid var(--border);
-        }
-        .list-item:last-child {
-            border-bottom: none;
-        }
-        .item-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: var(--surface2);
-            display: grid;
-            place-items: center;
-            flex-shrink: 0;
-        }
-        .item-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .item-name {
-            font-size: 14px;
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .item-sub {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 1px;
-        }
-        .item-right {
-            text-align: right;
-            flex-shrink: 0;
-        }
-        .item-amount {
-            font-family: 'DM Mono', monospace;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        .item-action {
-            display: flex;
-            gap: 4px;
-        }
-        /* ========================================
-           10. PROGRESS BAR
-           แถบแสดงความคืบหน้า
-        ======================================== */
-        .progress-bar {
-            height: 4px;
-            border-radius: 99px;
-            background: var(--surface2);
-            margin-top: 5px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            border-radius: 99px;
-            transition: width 0.5s ease;
-        }
-        .bill-paid-bar {
-            height: 5px;
-            border-radius: 99px;
-            background: var(--border);
-            overflow: hidden;
-            margin-bottom: 16px;
-        }
-        .bill-paid-fill {
-            height: 100%;
-            background: var(--text);
-            border-radius: 99px;
-            transition: width 0.6s ease;
-        }
-        /* ========================================
-           11. TAG COMPONENTS
-           ป้ายกำกับสถานะต่างๆ
-        ======================================== */
-        .tag {
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-            padding: 3px 8px;
-            border-radius: 99px;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-        .tag-dark {
-            background: var(--text);
-            color: white;
-        }
-        .tag-mid {
-            background: var(--surface2);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-        .tag-light {
-            background: white;
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-        }
-        /* ========================================
-           12. BUTTON COMPONENTS
-           ปุ่มต่างๆ
-        ======================================== */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 10px 18px;
-            border-radius: var(--radius-sm);
-            font-family: 'Kanit', sans-serif;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            border: none;
-            transition: all 0.15s;
-        }
-        .btn:active {
-            transform: scale(0.96);
-        }
-        .btn-primary {
-            background: var(--text);
-            color: white;
-            width: 100%;
-            padding: 14px;
-            font-size: 15px;
-        }
-        .btn-ghost {
-            background: var(--surface2);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-        /* ปุ่มไอคอน */
-        .icon-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            border: none;
-            background: var(--surface2);
-            cursor: pointer;
-            display: grid;
-            place-items: center;
-            color: var(--text-muted);
-            transition: all 0.15s;
-            flex-shrink: 0;
-        }
-        .icon-btn:active {
-            background: var(--border);
-            transform: scale(0.9);
-        }
-        /* ปุ่ม checkbox */
-        .check-btn {
-            width: 22px;
-            height: 22px;
-            border-radius: 6px;
-            border: 2px solid var(--border);
-            background: none;
-            cursor: pointer;
-            display: grid;
-            place-items: center;
-            flex-shrink: 0;
-            transition: all 0.15s;
-            color: white;
-        }
-        .check-btn.done {
-            background: var(--text);
-            border-color: var(--text);
-        }
-        /* ========================================
-           13. EMPTY STATE
-           แสดงเมื่อไม่มีข้อมูล
-        ======================================== */
-        .empty {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-muted);
-        }
-        .empty svg {
-            opacity: 0.2;
-            margin-bottom: 10px;
-        }
-        .empty-text {
-            font-size: 13px;
-            line-height: 1.6;
-        }
-        /* ========================================
-           14. FLOATING ACTION BUTTON (FAB)
-           ปุ่มลอยตัวสำหรับเพิ่มรายการ
-        ======================================== */
-        .fab {
-            position: fixed;
-            bottom: calc(var(--nav-h) + 16px + var(--sb));
-            right: calc(50% - 215px + 16px);
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: var(--text);
-            color: white;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-            display: grid;
-            place-items: center;
-            transition: transform 0.2s;
-            z-index: 15;
-        }
-        .fab:active {
-            transform: scale(0.9);
-        }
-        @media (max-width: 430px) {
-            .fab {
-                right: 16px;
-            }
-        }
-        /* ========================================
-           15. TAB COMPONENTS
-           แท็บสำหรับสลับมุมมอง
-        ======================================== */
-        .tabs {
-            display: flex;
-            gap: 4px;
-            background: var(--surface2);
-            border-radius: 10px;
-            padding: 3px;
-            margin-bottom: 14px;
-        }
-        .tab {
-            flex: 1;
-            padding: 8px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            text-align: center;
-            cursor: pointer;
-            border: none;
-            background: none;
-            color: var(--text-muted);
-            font-family: 'Kanit', sans-serif;
-            transition: all 0.15s;
-        }
-        .tab.active {
-            background: var(--surface);
-            color: var(--text);
-            box-shadow: var(--shadow);
-        }
-        /* ========================================
-           16. MODAL COMPONENTS
-           หน้าต่าง popup สำหรับกรอกข้อมูล
-        ======================================== */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 100;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(6px);
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s;
-        }
-        .modal-overlay.open {
-            opacity: 1;
-            pointer-events: all;
-        }
-        .modal {
-            background: var(--surface);
-            border-radius: 24px 24px 0 0;
-            padding: 20px 20px calc(20px + var(--sb));
-            width: 100%;
-            max-width: 430px;
-            max-height: 90vh;
-            overflow-y: auto;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
-        }
-        .modal-overlay.open .modal {
-            transform: translateY(0);
-        }
-        .modal-handle {
-            width: 36px;
-            height: 4px;
-            background: var(--border);
-            border-radius: 2px;
-            margin: 0 auto 20px;
-        }
-        .modal-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-        /* ========================================
-           17. FORM COMPONENTS
-           ฟอร์มและ input ต่างๆ
-        ======================================== */
-        .form-group {
-            margin-bottom: 14px;
-        }
-        .form-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            display: block;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .form-input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-family: 'Kanit', sans-serif;
-            font-size: 15px;
-            background: var(--surface2);
-            color: var(--text);
-            outline: none;
-            transition: border-color 0.15s;
-        }
-        .form-input:focus {
-            border-color: var(--text);
-            background: var(--surface);
-        }
-        .form-row {
-            display: flex;
-            gap: 10px;
-        }
-        .form-row .form-group {
-            flex: 1;
-        }
-        .modal-footer {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .modal-footer .btn {
-            flex: 1;
-        }
-        /* ========================================
-           18. HERO CARD
-           การ์ดแสดงข้อมูลหลักด้านบน
-        ======================================== */
-        .hero-card {
-            background: var(--text);
-            color: white;
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 14px;
-            position: relative;
-            overflow: hidden;
-        }
-        .hero-card::after {
-            content: '';
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.04);
-            top: -60px;
-            right: -60px;
-        }
-        .hero-label {
-            font-size: 11px;
-            opacity: 0.6;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .hero-amount {
-            font-size: 38px;
-            font-weight: 700;
-            letter-spacing: -1px;
-            line-height: 1.1;
-            margin: 6px 0 4px;
-        }
-        .hero-sub {
-            font-size: 12px;
-            opacity: 0.6;
-        }
-        .hero-row {
-            display: flex;
-            gap: 0;
-            margin-top: 16px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 14px;
-        }
-        .hero-mini {
-            flex: 1;
-            text-align: center;
-        }
-        .hero-mini + .hero-mini {
-            border-left: 1px solid rgba(255,255,255,0.1);
-        }
-        .hero-mini-val {
-            font-size: 20px;
-            font-weight: 700;
-        }
-        .hero-mini-label {
-            font-size: 10px;
-            opacity: 0.5;
-            margin-top: 2px;
-        }
-        /* ========================================
-           19. CAR PAGE SPECIFIC
-           สไตล์เฉพาะหน้ารถยนต์
-        ======================================== */
-        .car-photo {
-            width: 100%;
-            height: 200px;
-            border-radius: var(--radius);
-            background: #1A1916;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 12px;
-        }
-        .car-photo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            inset: 0;
-        }
-        .car-photo-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            color: white;
-            font-size: 13px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        .car-photo:active .car-photo-overlay,
-        .car-photo:hover .car-photo-overlay {
-            opacity: 1;
-        }
-        .quick-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-        .quick-item {
-            background: var(--surface);
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            padding: 14px 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 500;
-            text-align: center;
-            box-shadow: var(--shadow);
-        }
-        .quick-item:active {
-            transform: scale(0.94);
-            background: var(--surface2);
-        }
-        /* ========================================
-           20. NOTES COMPONENTS
-           สไตล์สำหรับโน้ต
-        ======================================== */
-        .notes-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .note-card {
-            border-radius: var(--radius-sm);
-            padding: 14px;
-        }
-        .note-title {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-        .note-body {
-            font-size: 12px;
-            line-height: 1.6;
-            opacity: 0.8;
-        }
-        .note-date {
-            font-size: 10px;
-            margin-top: 8px;
-            opacity: 0.5;
-        }
-        /* ========================================
-           21. ADD OPTIONS
-           ตัวเลือกการเพิ่มรายการ
-        ======================================== */
-        .add-option {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px;
-            border-radius: var(--radius-sm);
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            cursor: pointer;
-            margin-bottom: 10px;
-            transition: background 0.15s;
-        }
-        .add-option:active {
-            background: var(--border);
-        }
-        .add-option-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            display: grid;
-            place-items: center;
-            flex-shrink: 0;
-        }
-        .add-option-name {
-            font-size: 15px;
-            font-weight: 500;
-        }
-        .add-option-sub {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 1px;
-        }
-        /* ========================================
-           22. PASSWORD DISPLAY
-           การแสดงรหัสผ่าน
-        ======================================== */
-        .pass-value {
-            font-family: 'DM Mono', monospace;
-            font-size: 12px;
-            letter-spacing: 2px;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-        /* ========================================
-           23. UTILITIES
-           คลาสช่วยเหลืออื่นๆ
-        ======================================== */
-        .section-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-        /* ========================================
-           24. TOAST NOTIFICATION
-           การแจ้งเตือนแบบ toast
-        ======================================== */
-        .toast {
-            position: fixed;
-            bottom: calc(var(--nav-h) + 20px + var(--sb));
-            left: 50%;
-            transform: translateX(-50%) translateY(10px);
-            background: var(--text);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 99px;
-            font-size: 13px;
-            font-weight: 500;
-            opacity: 0;
-            transition: all 0.3s;
-            pointer-events: none;
-            z-index: 200;
-            white-space: nowrap;
-        }
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-        /* ========================================
-           25. SCROLLBAR STYLING
-           สไตล์ scrollbar
-        ======================================== */
-        ::-webkit-scrollbar {
-            width: 3px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 99px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>My Space</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#F5F4F0;--surface:#FFFFFF;--surface2:#F0EFEB;--border:#E8E6E0;
+  --text:#1A1916;--text-muted:#9B9890;--accent:#C17D3C;--accent-light:#F5E8D6;
+  --danger:#C0392B;--danger-light:#FDECEA;--warning:#D4890A;
+  --radius:18px;--radius-sm:12px;
+  --shadow:0 2px 12px rgba(0,0,0,0.07);--shadow-lg:0 12px 40px rgba(0,0,0,0.15);
+  --nav-h:72px;--header-h:60px;--sb:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;width:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);font-size:15px;}
+#app{display:flex;flex-direction:column;height:100%;width:100%;max-width:430px;margin:0 auto;position:relative;background:var(--bg);overflow:hidden;}
+
+/* HEADER */
+.app-header{height:var(--header-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;flex-shrink:0;position:relative;z-index:10;}
+.header-title{font-size:18px;font-weight:600;letter-spacing:-0.3px;}
+.header-sub{font-size:11px;color:var(--text-muted);}
+.header-btn{width:38px;height:38px;border-radius:50%;background:var(--surface2);border:none;cursor:pointer;display:grid;place-items:center;color:var(--text);margin-left:auto;transition:background 0.15s;}
+.header-btn:active{background:var(--border);}
+
+/* PAGES */
+.pages{flex:1;overflow:hidden;position:relative;}
+.page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:16px 16px calc(16px + var(--sb));opacity:0;pointer-events:none;transform:translateX(24px);transition:opacity 0.2s ease,transform 0.2s ease;-webkit-overflow-scrolling:touch;}
+.page.active{opacity:1;pointer-events:all;transform:translateX(0);}
+
+/* BOTTOM NAV */
+.bottom-nav{height:var(--nav-h);padding-bottom:var(--sb);background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:stretch;flex-shrink:0;z-index:20;}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:none;background:none;cursor:pointer;color:var(--text-muted);font-family:'Kanit',sans-serif;font-size:10px;font-weight:400;transition:color 0.15s;position:relative;padding-bottom:4px;}
+.nav-btn.active{color:var(--text);font-weight:600;}
+.nav-btn.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:32px;height:3px;background:var(--text);border-radius:0 0 3px 3px;}
+.nav-badge{position:absolute;top:6px;right:calc(50% - 16px);background:var(--text);color:white;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 4px;}
+
+/* CARDS */
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:16px;box-shadow:var(--shadow);}
+.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin:18px 0 8px 2px;}
+.section-title:first-child{margin-top:2px;}
+
+/* STAT STRIP */
+.stat-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.stat-box{background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);padding:14px 10px;box-shadow:var(--shadow);}
+.stat-box-label{font-size:9px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.stat-box-value{font-size:20px;font-weight:700;letter-spacing:-0.5px;margin-top:4px;line-height:1;}
+.stat-box-sub{font-size:10px;color:var(--text-muted);margin-top:3px;}
+
+/* LIST */
+.list-card{background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow);}
+.list-item{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--border);}
+.list-item:last-child{border-bottom:none;}
+.item-icon{width:40px;height:40px;border-radius:12px;background:var(--surface2);display:grid;place-items:center;flex-shrink:0;}
+.item-info{flex:1;min-width:0;}
+.item-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.item-sub{font-size:11px;color:var(--text-muted);margin-top:1px;}
+.item-right{text-align:right;flex-shrink:0;}
+.item-amount{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;}
+.item-action{display:flex;gap:4px;}
+
+/* PROGRESS */
+.progress-bar{height:4px;border-radius:99px;background:var(--surface2);margin-top:5px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:99px;transition:width 0.5s ease;}
+.bill-paid-bar{height:5px;border-radius:99px;background:var(--border);overflow:hidden;margin-bottom:16px;}
+.bill-paid-fill{height:100%;background:var(--text);border-radius:99px;transition:width 0.6s ease;}
+
+/* TAGS */
+.tag{font-size:10px;font-weight:600;letter-spacing:0.3px;padding:3px 8px;border-radius:99px;white-space:nowrap;flex-shrink:0;}
+.tag-dark{background:var(--text);color:white;}
+.tag-mid{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.tag-light{background:white;color:var(--text-muted);border:1px solid var(--border);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:var(--radius-sm);font-family:'Kanit',sans-serif;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all 0.15s;}
+.btn:active{transform:scale(0.96);}
+.btn-primary{background:var(--text);color:white;width:100%;padding:14px;font-size:15px;}
+.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+
+/* ICON BUTTONS */
+.icon-btn{width:32px;height:32px;border-radius:8px;border:none;background:var(--surface2);cursor:pointer;display:grid;place-items:center;color:var(--text-muted);transition:all 0.15s;flex-shrink:0;}
+.icon-btn:active{background:var(--border);transform:scale(0.9);}
+
+/* CHECK */
+.check-btn{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);background:none;cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:all 0.15s;color:white;}
+.check-btn.done{background:var(--text);border-color:var(--text);}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--text-muted);}
+.empty svg{opacity:0.2;margin-bottom:10px;}
+.empty-text{font-size:13px;line-height:1.6;}
+
+/* FAB */
+.fab{position:fixed;bottom:calc(var(--nav-h) + 16px + var(--sb));right:calc(50% - 215px + 16px);width:52px;height:52px;border-radius:50%;background:var(--text);color:white;border:none;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.25);display:grid;place-items:center;transition:transform 0.2s;z-index:15;}
+.fab:active{transform:scale(0.9);}
+@media(max-width:430px){.fab{right:16px;}}
+
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--surface2);border-radius:10px;padding:3px;margin-bottom:14px;}
+.tab{flex:1;padding:8px;border-radius:8px;font-size:13px;font-weight:500;text-align:center;cursor:pointer;border:none;background:none;color:var(--text-muted);font-family:'Kanit',sans-serif;transition:all 0.15s;}
+.tab.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow);}
+
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.5);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px calc(20px + var(--sb));width:100%;max-width:430px;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1);}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px;}
+.modal-title{font-size:18px;font-weight:600;margin-bottom:20px;}
+.form-group{margin-bottom:14px;}
+.form-label{font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:0.5px;}
+.form-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Kanit',sans-serif;font-size:15px;background:var(--surface2);color:var(--text);outline:none;transition:border-color 0.15s;}
+.form-input:focus{border-color:var(--text);background:var(--surface);}
+.form-row{display:flex;gap:10px;}
+.form-row .form-group{flex:1;}
+.modal-footer{display:flex;gap:10px;margin-top:20px;}
+.modal-footer .btn{flex:1;}
+
+/* HERO */
+.hero-card{background:var(--text);color:white;border-radius:var(--radius);padding:20px;margin-bottom:14px;position:relative;overflow:hidden;}
+.hero-card::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.04);top:-60px;right:-60px;}
+.hero-label{font-size:11px;opacity:0.6;text-transform:uppercase;letter-spacing:1px;}
+.hero-amount{font-size:38px;font-weight:700;letter-spacing:-1px;line-height:1.1;margin:6px 0 4px;}
+.hero-sub{font-size:12px;opacity:0.6;}
+.hero-row{display:flex;gap:0;margin-top:16px;border-top:1px solid rgba(255,255,255,0.1);padding-top:14px;}
+.hero-mini{flex:1;text-align:center;}
+.hero-mini+.hero-mini{border-left:1px solid rgba(255,255,255,0.1);}
+.hero-mini-val{font-size:20px;font-weight:700;}
+.hero-mini-label{font-size:10px;opacity:0.5;margin-top:2px;}
+
+/* CAR */
+.car-photo{width:100%;height:200px;border-radius:var(--radius);background:#1A1916;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;margin-bottom:12px;}
+.car-photo img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.car-photo-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;gap:6px;color:white;font-size:13px;opacity:0;transition:opacity 0.2s;}
+.car-photo:active .car-photo-overlay,.car-photo:hover .car-photo-overlay{opacity:1;}
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.quick-item{background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;font-size:11px;font-weight:500;text-align:center;box-shadow:var(--shadow);}
+.quick-item:active{transform:scale(0.94);background:var(--surface2);}
+
+/* NOTES */
+.notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.note-card{border-radius:var(--radius-sm);padding:14px;}
+.note-title{font-size:13px;font-weight:600;margin-bottom:6px;}
+.note-body{font-size:12px;line-height:1.6;opacity:0.8;}
+.note-date{font-size:10px;margin-top:8px;opacity:0.5;}
+
+/* ADD OPTION */
+.add-option{display:flex;align-items:center;gap:14px;padding:14px;border-radius:var(--radius-sm);background:var(--surface2);border:1px solid var(--border);cursor:pointer;margin-bottom:10px;transition:background 0.15s;}
+.add-option:active{background:var(--border);}
+.add-option-icon{width:44px;height:44px;border-radius:12px;background:var(--surface);border:1px solid var(--border);display:grid;place-items:center;flex-shrink:0;}
+.add-option-name{font-size:15px;font-weight:500;}
+.add-option-sub{font-size:12px;color:var(--text-muted);margin-top:1px;}
+
+/* PASS */
+.pass-value{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:2px;color:var(--text-muted);margin-top:2px;}
+
+/* SECTION ROW */
+.section-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(var(--nav-h) + 20px + var(--sb));left:50%;transform:translateX(-50%) translateY(10px);background:var(--text);color:white;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;opacity:0;transition:all 0.3s;pointer-events:none;z-index:200;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
 </head>
 <body>
 <div id="app">
-    <!-- ========================================
-         HEADER SECTION
-         ส่วนหัวแอปพลิเคชัน แสดงชื่อหน้าปัจจุบันและวันที่
-    ======================================== -->
-    <header class="app-header">
-        <div>
-            <div class="header-title" id="page-title">ภาพรวม</div>
-            <div class="header-sub" id="today-date"></div>
-        </div>
-        <button class="header-btn" onclick="openAddModal()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-        </button>
-    </header>
-    <!-- ========================================
-         PAGES CONTAINER
-         คอนเทนเนอร์หลักสำหรับทุกหน้า
-    ======================================== -->
-    <div class="pages">
-        <!-- ========================================
-             PAGE 1: OVERVIEW (หน้าภาพรวม)
-             แสดงสรุปค่าใช้จ่าย บิลค้างจ่าย และเตือนความจำ
-        ======================================== -->
-        <div class="page active" id="page-overview">
-            <!-- Hero Card แสดงยอดรวมค่าใช้จ่าย -->
-            <div class="hero-card">
-                <div class="hero-label">รายจ่ายเดือนนี้</div>
-                <div class="hero-amount">฿<span id="ov-spent">0</span></div>
-                <div class="hero-sub">จาก ฿<span id="ov-total">0</span></div>
-                <div class="hero-row">
-                    <div class="hero-mini">
-                        <div class="hero-mini-val" id="ov-passwords">0</div>
-                        <div class="hero-mini-label">รหัสผ่าน</div>
-                    </div>
-                    <div class="hero-mini">
-                        <div class="hero-mini-val" id="ov-todos">0</div>
-                        <div class="hero-mini-label">งานค้าง</div>
-                    </div>
-                    <div class="hero-mini">
-                        <div class="hero-mini-val" id="ov-bills-count">0</div>
-                        <div class="hero-mini-label">บิลค้าง</div>
-                    </div>
-                </div>
-            </div>
-            <!-- รายการบิลค้างจ่าย -->
-            <div class="section-title">บิลค้างจ่าย</div>
-            <div class="list-card" id="ov-bills-list"></div>
-            <!-- รายการเตือนความจำ -->
-            <div class="section-title">เตือนความจำ</div>
-            <div class="list-card" id="ov-reminder-list"></div>
-            <div style="height:16px;"></div>
-        </div>
-        <!-- ========================================
-             PAGE 2: BILLS (หน้าบิล)
-             จัดการบิลประจำเดือนทั้งหมด
-        ======================================== -->
-        <div class="page" id="page-bills">
-            <!-- สถิติบิล -->
-            <div class="stat-strip">
-                <div class="stat-box">
-                    <div class="stat-box-label">ทั้งหมด</div>
-                    <div class="stat-box-value" id="bill-total-amount">฿0</div>
-                    <div class="stat-box-sub">ต่อเดือน</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-box-label">จ่ายแล้ว</div>
-                    <div class="stat-box-value" id="bill-paid-amount">฿0</div>
-                    <div class="stat-box-sub" id="bill-paid-count">0 รายการ</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-box-label">ค้างจ่าย</div>
-                    <div class="stat-box-value" id="bill-unpaid-amount">฿0</div>
-                    <div class="stat-box-sub" id="bill-unpaid-count">0 รายการ</div>
-                </div>
-            </div>
-            <!-- แถบแสดงความคืบหน้าการจ่ายบิล -->
-            <div class="bill-paid-bar">
-                <div class="bill-paid-fill" id="bill-paid-bar" style="width:0%"></div>
-            </div>
-            <!-- รายการบิลทั้งหมด -->
-            <div id="bills-list-container"></div>
-            <!-- ปุ่มรีเซ็ตบิล -->
-            <button class="btn btn-ghost" style="width:100%;margin-top:10px;" onclick="resetAllBills()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="23,4 23,11 16,11"/>
-                    <polyline points="1,20 1,13 8,13"/>
-                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 11M1 13l4.64 4.36A9 9 0 0 0 20.49 15"/>
-                </svg>
-                รีเซ็ตเดือนใหม่
-            </button>
-            <div style="height:16px;"></div>
-        </div>
-        <!-- ========================================
-             PAGE 3: PASSWORDS (หน้ารหัสผ่าน)
-             จัดเก็บรหัสผ่านและ PIN ต่างๆ
-        ======================================== -->
-        <div class="page" id="page-passwords">
-            <div class="list-card" id="password-list-container">
-                <div class="empty">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="8" cy="15" r="5"/>
-                        <path d="M21 3L11.6 12.4M16 8l2 2M19 5l2 2"/>
-                    </svg>
-                    <div class="empty-text">ยังไม่มีรหัสที่บันทึก<br>กด + เพื่อเพิ่ม</div>
-                </div>
-            </div>
-        </div>
-        <!-- ========================================
-             PAGE 4: REMINDERS (หน้าเตือนความจำ)
-             รายการสิ่งที่ต้องทำ
-        ======================================== -->
-        <div class="page" id="page-reminders">
-            <div class="list-card" id="reminder-list-container">
-                <div class="empty">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                    </svg>
-                    <div class="empty-text">ยังไม่มีรายการ<br>กด + เพื่อเพิ่ม</div>
-                </div>
-            </div>
-        </div>
-        <!-- ========================================
-             PAGE 5: MORE (หน้าเพิ่มเติม)
-             ข้อมูลรถ, งบประมาณ, โน้ต
-        ======================================== -->
-        <div class="page" id="page-more">
-            <!-- ส่วนข้อมูลรถยนต์ -->
-            <div class="section-title">รถยนต์ของฉัน</div>
-            <div class="card" style="cursor:pointer;" onclick="openCarPage()">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div class="item-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-4h10l2 4h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/>
-                            <circle cx="7.5" cy="17.5" r="2.5"/>
-                            <circle cx="16.5" cy="16.5" r="2.5"/>
-                        </svg>
-                    </div>
-                    <div style="flex:1;">
-                        <div id="more-car-model" style="font-size:14px;font-weight:500;">ยังไม่ได้ตั้งค่ารถ</div>
-                        <div id="more-car-plate" style="font-size:12px;color:var(--text-muted);">แตะเพื่อดูข้อมูล</div>
-                    </div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.3">
-                        <polyline points="9,18 15,12 9,6"/>
-                    </svg>
-                </div>
-            </div>
-            <!-- ส่วนค่าใช้จ่าย -->
-            <div class="section-title">ค่าใช้จ่าย</div>
-            <div class="tabs">
-                <button class="tab active" onclick="switchMoreTab(this,'tab-m-budget')">งบประมาณ</button>
-                <button class="tab" onclick="switchMoreTab(this,'tab-m-summary')">สรุป</button>
-            </div>
-            
-            <div id="tab-m-budget">
-                <div class="section-row">
-                    <span></span>
-                    <button class="btn btn-ghost" style="padding:8px 14px;font-size:13px;" onclick="openBudgetModal()">+ เพิ่ม</button>
-                </div>
-                <div class="list-card" id="budget-list-container">
-                    <div class="empty">
-                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                        </svg>
-                        <div class="empty-text">ยังไม่มีหมวด</div>
-                    </div>
-                </div>
-            </div>
-            <div id="tab-m-summary" style="display:none;">
-                <div class="card" id="budget-summary-content">
-                    <div class="empty">
-                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <line x1="18" y1="20" x2="18" y2="10"/>
-                            <line x1="12" y1="20" x2="12" y2="4"/>
-                            <line x1="6" y1="20" x2="6" y2="14"/>
-                            <line x1="2" y1="20" x2="22" y2="20"/>
-                        </svg>
-                        <div class="empty-text">ยังไม่มีข้อมูล</div>
-                    </div>
-                </div>
-            </div>
-            <!-- ส่วนโน้ตส่วนตัว -->
-            <div style="margin-top:8px;" class="section-row">
-                <div class="section-title" style="margin:0;">โน้ตส่วนตัว</div>
-                <button class="btn btn-ghost" style="padding:8px 14px;font-size:13px;" onclick="openNoteModal()">+ เพิ่ม</button>
-            </div>
-            <div class="notes-grid" id="notes-container">
-                <div class="empty" style="grid-column:1/-1;">
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                    </svg>
-                    <div class="empty-text">ยังไม่มีโน้ต</div>
-                </div>
-            </div>
-            <div style="height:20px;"></div>
-        </div>
-        <!-- ========================================
-             PAGE 6: CAR (หน้ารถยนต์)
-             ข้อมูลรถยนต์และเอกสารต่างๆ
-        ======================================== -->
-        <div class="page" id="page-car">
-            <!-- รูปรถ -->
-            <div class="car-photo" onclick="document.getElementById('car-img-input').click()">
-                <img id="car-img-preview" src="" alt="" style="display:none;">
-                <div id="car-img-placeholder" style="color:rgba(255,255,255,0.4);text-align:center;display:flex;flex-direction:column;align-items:center;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-4h10l2 4h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/>
-                        <circle cx="7.5" cy="17.5" r="2.5"/>
-                        <circle cx="16.5" cy="17.5" r="2.5"/>
-                    </svg>
-                    <div style="font-size:12px;margin-top:8px;">แตะเพื่ออัปโหลดรูปรถ</div>
-                </div>
-                <div class="car-photo-overlay">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                        <circle cx="12" cy="13" r="4"/>
-                    </svg> 
-                    เปลี่ยนรูป
-                </div>
-            </div>
-            <input type="file" id="car-img-input" accept="image/*" style="display:none;" onchange="handleCarImage(event)">
-            <!-- ข้อมูลรถ -->
-            <div class="card" style="margin-bottom:12px;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-                    <div>
-                        <div id="car-model-text" style="font-size:20px;font-weight:600;letter-spacing:-0.3px;">ยังไม่ได้ตั้งค่า</div>
-                        <div id="car-plate-text" style="font-size:13px;color:var(--text-muted);margin-top:2px;">ทะเบียนรถ</div>
-                    </div>
-                    <div id="car-plate-badge" style="background:var(--text);color:white;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:500;">—</div>
-                </div>
-                <button class="btn btn-primary" style="font-size:14px;padding:12px;" onclick="openCarEditModal()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                    แก้ไขข้อมูลรถ
-                </button>
-            </div>
-            <!-- ปุ่มลัด -->
-            <div class="quick-grid">
-                <div class="quick-item" onclick="openCarEditModal()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M12 6v2m0 8v2M8 12h8"/>
-                    </svg>
-                    <span>ราคารถ</span>
-                </div>
-                <div class="quick-item" onclick="openCarEditModal()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="9" y="2" width="6" height="4" rx="1"/>
-                        <path d="M6 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/>
-                    </svg>
-                    <span>ภาษี</span>
-                </div>
-                <div class="quick-item" onclick="openCarEditModal()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                    </svg>
-                    <span>ประกัน</span>
-                </div>
-                <div class="quick-item" onclick="openCarEditModal()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="2" y="5" width="20" height="14" rx="2"/>
-                        <circle cx="9" cy="12" r="2"/>
-                        <path d="M13 11h4M13 15h4"/>
-                    </svg>
-                    <span>ใบขับขี่</span>
-                </div>
-            </div>
-            <!-- สถานะเอกสาร -->
-            <div class="section-title">สถานะเอกสาร</div>
-            <div class="list-card">
-                <!-- รายการเอกสารต่างๆ -->
-                <div class="list-item">
-                    <div class="item-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 6v2m0 8v2M8 12h8"/>
-                        </svg>
-                    </div>
-                    <div class="item-info">
-                        <div class="item-name">ราคาเต็มรถ</div>
-                    </div>
-                    <div class="item-right">
-                        <div class="item-amount" id="car-price-val">฿0</div>
-                    </div>
-                </div>
-                <!-- เอกสารอื่นๆ ละเว้นเพื่อความกระชับ -->
-            </div>
-            <!-- รูปใบขับขี่ -->
-            <div class="section-title">รูปใบขับขี่</div>
-            <div id="car-license-img-wrap" style="display:none;margin-bottom:10px;">
-                <img id="car-license-img" style="width:100%;border-radius:var(--radius-sm);" alt="">
-            </div>
-            <button class="btn btn-ghost" style="width:100%;margin-bottom:12px;" onclick="document.getElementById('license-img-input').click()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2" rows="4" placeholder="เปลี่ยนยาง, ซ่อมบำรุง, หมายเหตุ..." style="resize:none;" oninput="saveCarMemo()"></textarea>
-            
-            <div style="height:20px;"></div>
-        </div>
-    </div><!-- end pages -->
-    <!-- ========================================
-         FLOATING ACTION BUTTON
-         ปุ่มลอยสำหรับเพิ่มรายการใหม่
-    ======================================== -->
-    <button class="fab" id="fab-btn" onclick="openAddModal()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-    </button>
-    <!-- ========================================
-         BOTTOM NAVIGATION
-         เมนูนำทางด้านล่าง
-    ======================================== -->
-    <nav class="bottom-nav">
-        <button class="nav-btn active" id="nav-overview" onclick="showPage('overview',this)">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="7" height="7" rx="1"/>
-                <rect x="14" y="3" width="7" height="7" rx="1"/>
-                <rect x="3" y="14" width="7" height="7" rx="1"/>
-                <rect x="14" y="14" width="7" height="7" rx="1"/>
-            </svg>
-            หน้าหลัก
-        </button>
-        <button class="nav-btn" id="nav-bills" onclick="showPage('bills',this)">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="5" width="20" height="14" rx="2"/>
-                <line x1="2" y1="10" x2="22" y2="10"/>
-            </svg>
-            บิล
-            <span class="nav-badge" id="bills-badge" style="display:none;"></span>
-        </button>
-        <button class="nav-btn" id="nav-passwords" onclick="showPage('passwords',this)">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="11" width="18" height="11" rx="2"/>
-                <path d="M7 11V7a5 5 0 0110 0v4"/>
-            </svg>
-            รหัส
-        </button>
-        <button class="nav-btn" id="nav-reminders" onclick="showPage('reminders',this)">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-            แจ้งเตือน
-        </button>
-        <button class="nav-btn" id="nav-more" onclick="showPage('more',this)">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="5" cy="12" r="1.5" fill="currentColor"/>
-                <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-                <circle cx="19" cy="12" r="1.5" fill="currentColor"/>
-            </svg>
-            เพิ่มเติม
-        </button>
-    </nav>
-</div>
-<!-- ========================================
-     TOAST NOTIFICATION
-     แถบแจ้งเตือนชั่วคราว
-======================================== -->
-<div class="toast" id="toast">บันทึกแล้ว</div>
-<!-- ========================================
-     MODALS SECTION
-     หน้าต่าง popup ต่างๆ สำหรับกรอกข้อมูล
-======================================== -->
-<!-- Modal: เลือกประเภทที่จะเพิ่ม -->
-<div class="modal-overlay" id="modal-add">
-    <div class="modal">
-        <div class="modal-handle"></div>
-        <div class="modal-title">เพิ่มอะไร?</div>
-        <!-- ตัวเลือกต่างๆ -->
-        <!-- ละเว้นเพื่อความกระชับ -->
+
+<!-- HEADER -->
+<header class="app-header">
+  <div>
+    <div class="header-title" id="page-title">ภาพรวม</div>
+    <div class="header-sub" id="today-date"></div>
+  </div>
+  <button class="header-btn" onclick="openAddModal()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+</header>
+
+<!-- PAGES -->
+<div class="pages">
+
+<!-- OVERVIEW -->
+<div class="page active" id="page-overview">
+  <div class="hero-card">
+    <div class="hero-label">รายจ่ายเดือนนี้</div>
+    <div class="hero-amount">฿<span id="ov-spent">0</span></div>
+    <div class="hero-sub">จาก ฿<span id="ov-total">0</span></div>
+    <div class="hero-row">
+      <div class="hero-mini"><div class="hero-mini-val" id="ov-passwords">0</div><div class="hero-mini-label">รหัสผ่าน</div></div>
+      <div class="hero-mini"><div class="hero-mini-val" id="ov-todos">0</div><div class="hero-mini-label">งานค้าง</div></div>
+      <div class="hero-mini"><div class="hero-mini-val" id="ov-bills-count">0</div><div class="hero-mini-label">บิลค้าง</div></div>
     </div>
+  </div>
+  <div class="section-title">บิลค้างจ่าย</div>
+  <div class="list-card" id="ov-bills-list"></div>
+  <div class="section-title">เตือนความจำ</div>
+  <div class="list-card" id="ov-reminder-list"></div>
+  <div style="height:16px;"></div>
 </div>
-<!-- Modal: เพิ่ม/แก้ไขบิล -->
+
+<!-- BILLS -->
+<div class="page" id="page-bills">
+  <div class="stat-strip">
+    <div class="stat-box"><div class="stat-box-label">ทั้งหมด</div><div class="stat-box-value" id="bill-total-amount">฿0</div><div class="stat-box-sub">ต่อเดือน</div></div>
+    <div class="stat-box"><div class="stat-box-label">จ่ายแล้ว</div><div class="stat-box-value" id="bill-paid-amount">฿0</div><div class="stat-box-sub" id="bill-paid-count">0 รายการ</div></div>
+    <div class="stat-box"><div class="stat-box-label">ค้างจ่าย</div><div class="stat-box-value" id="bill-unpaid-amount">฿0</div><div class="stat-box-sub" id="bill-unpaid-count">0 รายการ</div></div>
+  </div>
+  <div class="bill-paid-bar"><div class="bill-paid-fill" id="bill-paid-bar" style="width:0%"></div></div>
+  <div id="bills-list-container"></div>
+  <button class="btn btn-ghost" style="width:100%;margin-top:10px;" onclick="resetAllBills()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,4 23,11 16,11"/><polyline points="1,20 1,13 8,13"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 11M1 13l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+    รีเซ็ตเดือนใหม่
+  </button>
+  <div style="height:16px;"></div>
+</div>
+
+<!-- PASSWORDS -->
+<div class="page" id="page-passwords">
+  <div class="list-card" id="password-list-container">
+    <div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="15" r="5"/><path d="M21 3L11.6 12.4M16 8l2 2M19 5l2 2"/></svg><div class="empty-text">ยังไม่มีรหัสที่บันทึก<br>กด + เพื่อเพิ่ม</div></div>
+  </div>
+</div>
+
+<!-- REMINDERS -->
+<div class="page" id="page-reminders">
+  <div class="list-card" id="reminder-list-container">
+    <div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="empty-text">ยังไม่มีรายการ<br>กด + เพื่อเพิ่ม</div></div>
+  </div>
+</div>
+
+<!-- MORE -->
+<div class="page" id="page-more">
+  <div class="section-title">รถยนต์ของฉัน</div>
+  <div class="card" style="cursor:pointer;" onclick="openCarPage()">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="item-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-4h10l2 4h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg></div>
+      <div style="flex:1;"><div id="more-car-model" style="font-size:14px;font-weight:500;">ยังไม่ได้ตั้งค่ารถ</div><div id="more-car-plate" style="font-size:12px;color:var(--text-muted);">แตะเพื่อดูข้อมูล</div></div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.3"><polyline points="9,18 15,12 9,6"/></svg>
+    </div>
+  </div>
+
+  <div class="section-title">ค่าใช้จ่าย</div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchMoreTab(this,'tab-m-budget')">งบประมาณ</button>
+    <button class="tab" onclick="switchMoreTab(this,'tab-m-summary')">สรุป</button>
+  </div>
+  <div id="tab-m-budget">
+    <div class="section-row"><span></span><button class="btn btn-ghost" style="padding:8px 14px;font-size:13px;" onclick="openBudgetModal()">+ เพิ่ม</button></div>
+    <div class="list-card" id="budget-list-container">
+      <div class="empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><div class="empty-text">ยังไม่มีหมวด</div></div>
+    </div>
+  </div>
+  <div id="tab-m-summary" style="display:none;">
+    <div class="card" id="budget-summary-content">
+      <div class="empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg><div class="empty-text">ยังไม่มีข้อมูล</div></div>
+    </div>
+  </div>
+
+  <div style="margin-top:8px;" class="section-row"><div class="section-title" style="margin:0;">โน้ตส่วนตัว</div><button class="btn btn-ghost" style="padding:8px 14px;font-size:13px;" onclick="openNoteModal()">+ เพิ่ม</button></div>
+  <div class="notes-grid" id="notes-container">
+    <div class="empty" style="grid-column:1/-1;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><div class="empty-text">ยังไม่มีโน้ต</div></div>
+  </div>
+  <div style="height:20px;"></div>
+</div>
+
+<!-- CAR -->
+<div class="page" id="page-car">
+  <div class="car-photo" onclick="document.getElementById('car-img-input').click()">
+    <img id="car-img-preview" src="" alt="" style="display:none;">
+    <div id="car-img-placeholder" style="color:rgba(255,255,255,0.4);text-align:center;display:flex;flex-direction:column;align-items:center;">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-4h10l2 4h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg>
+      <div style="font-size:12px;margin-top:8px;">แตะเพื่ออัปโหลดรูปรถ</div>
+    </div>
+    <div class="car-photo-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> เปลี่ยนรูป</div>
+  </div>
+  <input type="file" id="car-img-input" accept="image/*" style="display:none;" onchange="handleCarImage(event)">
+
+  <div class="card" style="margin-bottom:12px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div><div id="car-model-text" style="font-size:20px;font-weight:600;letter-spacing:-0.3px;">ยังไม่ได้ตั้งค่า</div><div id="car-plate-text" style="font-size:13px;color:var(--text-muted);margin-top:2px;">ทะเบียนรถ</div></div>
+      <div id="car-plate-badge" style="background:var(--text);color:white;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:500;">—</div>
+    </div>
+    <button class="btn btn-primary" style="font-size:14px;padding:12px;" onclick="openCarEditModal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      แก้ไขข้อมูลรถ
+    </button>
+  </div>
+
+  <div class="quick-grid">
+    <div class="quick-item" onclick="openCarEditModal()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v2m0 8v2M8 12h8"/></svg><span>ราคารถ</span></div>
+    <div class="quick-item" onclick="openCarEditModal()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M6 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/></svg><span>ภาษี</span></div>
+    <div class="quick-item" onclick="openCarEditModal()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>ประกัน</span></div>
+    <div class="quick-item" onclick="openCarEditModal()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="9" cy="12" r="2"/><path d="M13 11h4M13 15h4"/></svg><span>ใบขับขี่</span></div>
+  </div>
+
+  <div class="section-title">สถานะเอกสาร</div>
+  <div class="list-card">
+    <div class="list-item"><div class="item-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v2m0 8v2M8 12h8"/></svg></div><div class="item-info"><div class="item-name">ราคาเต็มรถ</div></div><div class="item-right"><div class="item-amount" id="car-price-val">฿0</div></div></div>
+    <div class="list-item"><div class="item-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M6 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/></svg></div><div class="item-info"><div class="item-name">ภาษีรถยนต์</div><div class="item-sub" id="car-tax-renew">วันต่อ: —</div></div><div class="item-right"><div class="item-sub" id="car-tax-expire">—</div><div id="car-tax-status" style="font-size:11px;"></div></div></div>
+    <div class="list-item"><div class="item-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="item-info"><div class="item-name">ประกันรถยนต์</div><div class="item-sub" id="car-ins-type">ประเภท: —</div></div><div class="item-right"><div class="item-sub" id="car-ins-expire">—</div><div id="car-ins-status" style="font-size:11px;"></div></div></div>
+    <div class="list-item"><div class="item-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="9" cy="12" r="2"/><path d="M13 11h4M13 15h4"/></svg></div><div class="item-info"><div class="item-name">ใบขับขี่</div><div class="item-sub">วันหมดอายุ</div></div><div class="item-right"><div class="item-sub" id="car-license-expire">—</div><div id="car-license-status" style="font-size:11px;"></div></div></div>
+  </div>
+
+  <div class="section-title">รูปใบขับขี่</div>
+  <div id="car-license-img-wrap" style="display:none;margin-bottom:10px;"><img id="car-license-img" style="width:100%;border-radius:var(--radius-sm);" alt=""></div>
+  <button class="btn btn-ghost" style="width:100%;margin-bottom:12px;" onclick="document.getElementById('license-img-input').click()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    อัปโหลดรูปใบขับขี่
+  </button>
+  <input type="file" id="license-img-input" accept="image/*" style="display:none;" onchange="handleLicenseImage(event)">
+
+  <div class="section-title">บันทึกเกี่ยวกับรถ</div>
+  <textarea class="form-input" id="car-memo" rows="4" placeholder="เปลี่ยนยาง, ซ่อมบำรุง, หมายเหตุ..." style="resize:none;" oninput="saveCarMemo()"></textarea>
+  <div style="height:20px;"></div>
+</div>
+
+</div><!-- end pages -->
+
+<!-- FAB -->
+<button class="fab" id="fab-btn" onclick="openAddModal()">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</button>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-overview" onclick="showPage('overview',this)">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    หน้าหลัก
+  </button>
+  <button class="nav-btn" id="nav-bills" onclick="showPage('bills',this)">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    บิล
+    <span class="nav-badge" id="bills-badge" style="display:none;"></span>
+  </button>
+  <button class="nav-btn" id="nav-passwords" onclick="showPage('passwords',this)">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    รหัส
+  </button>
+  <button class="nav-btn" id="nav-reminders" onclick="showPage('reminders',this)">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    แจ้งเตือน
+  </button>
+  <button class="nav-btn" id="nav-more" onclick="showPage('more',this)">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>
+    เพิ่มเติม
+  </button>
+</nav>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">บันทึกแล้ว</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-add">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">เพิ่มอะไร?</div>
+    <div class="add-option" onclick="closeModal('modal-add');openBillModal()"><div class="add-option-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><div><div class="add-option-name">บิลประจำเดือน</div><div class="add-option-sub">ค่าเช่า ค่างวด ค่าน้ำ ค่าไฟ</div></div></div>
+    <div class="add-option" onclick="closeModal('modal-add');openBudgetModal()"><div class="add-option-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="add-option-name">หมวดค่าใช้จ่าย</div><div class="add-option-sub">งบประมาณและรายจ่าย</div></div></div>
+    <div class="add-option" onclick="closeModal('modal-add');openPassModal()"><div class="add-option-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="15" r="5"/><path d="M21 3L11.6 12.4M16 8l2 2M19 5l2 2"/></svg></div><div><div class="add-option-name">รหัสผ่าน / PIN</div><div class="add-option-sub">บัญชี รหัสผ่าน ข้อมูลสำคัญ</div></div></div>
+    <div class="add-option" onclick="closeModal('modal-add');openReminderModal()"><div class="add-option-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><div><div class="add-option-name">เตือนความจำ</div><div class="add-option-sub">สิ่งที่ต้องทำและจำ</div></div></div>
+    <div class="add-option" onclick="closeModal('modal-add');openNoteModal()"><div class="add-option-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="add-option-name">โน้ต</div><div class="add-option-sub">บันทึกส่วนตัว</div></div></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-bill">
-    <!-- ฟอร์มบิล -->
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="bill-modal-title">เพิ่มบิล</div>
+    <input type="hidden" id="bill-edit-id">
+    <div class="form-group"><label class="form-label">ชื่อรายการ</label><input class="form-input" id="bill-name" placeholder="ค่าเช่าบ้าน, ค่างวดรถ..."></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">ยอดเงิน (฿)</label><input class="form-input" id="bill-amount" type="number" placeholder="0"></div>
+      <div class="form-group"><label class="form-label">วันที่ต้องจ่าย</label><input class="form-input" id="bill-due" type="number" min="1" max="31" placeholder="1-31"></div>
+    </div>
+    <div class="form-group"><label class="form-label">หมวดหมู่</label><select class="form-input" id="bill-cat"><option value="housing">ที่อยู่อาศัย</option><option value="vehicle">ยานพาหนะ</option><option value="utility">สาธารณูปโภค</option><option value="entertainment">บันเทิง</option><option value="education">การศึกษา</option><option value="investment">การลงทุน/ออม</option><option value="food">อาหาร</option><option value="business">ธุรกิจ</option><option value="other">อื่นๆ</option></select></div>
+    <div class="form-group"><label class="form-label">หมายเหตุ</label><input class="form-input" id="bill-note" placeholder="ธนาคาร, บัญชี..."></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-bill')">ยกเลิก</button><button class="btn btn-primary" style="flex:2;" onclick="saveBill()">บันทึก</button></div>
+  </div>
 </div>
-<!-- Modal: เพิ่มงบประมาณ -->
+
 <div class="modal-overlay" id="modal-budget">
-    <!-- ฟอร์มงบประมาณ -->
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">เพิ่มหมวดค่าใช้จ่าย</div>
+    <div class="form-group"><label class="form-label">ชื่อหมวด</label><input class="form-input" id="b-name" placeholder="ค่าอาหาร, ค่าเช่า..."></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">ยอดที่ใช้ไป (฿)</label><input class="form-input" id="b-spent" type="number" placeholder="0"></div>
+      <div class="form-group"><label class="form-label">งบสูงสุด (฿)</label><input class="form-input" id="b-limit" type="number" placeholder="0"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-budget')">ยกเลิก</button><button class="btn btn-primary" style="flex:2;" onclick="saveBudget()">บันทึก</button></div>
+  </div>
 </div>
-<!-- Modal: เพิ่มรหัสผ่าน -->
+
 <div class="modal-overlay" id="modal-pass">
-    <!-- ฟอร์มรหัสผ่าน -->
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">บันทึกรหัสผ่าน</div>
+    <div class="form-group"><label class="form-label">ชื่อบัญชี / ระบบ</label><input class="form-input" id="p-name" placeholder="Gmail, ธนาคาร, Wi-Fi..."></div>
+    <div class="form-group"><label class="form-label">ชื่อผู้ใช้ / อีเมล</label><input class="form-input" id="p-user" placeholder="username@example.com"></div>
+    <div class="form-group"><label class="form-label">รหัสผ่าน / PIN</label><input class="form-input" id="p-pass" placeholder="รหัสผ่าน"></div>
+    <div class="form-group"><label class="form-label">หมายเหตุ</label><input class="form-input" id="p-note" placeholder="..."></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-pass')">ยกเลิก</button><button class="btn btn-primary" style="flex:2;" onclick="savePassword()">บันทึก</button></div>
+  </div>
 </div>
-<!-- Modal: เพิ่มเตือนความจำ -->
+
 <div class="modal-overlay" id="modal-reminder">
-    <!-- ฟอร์มเตือนความจำ -->
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">เพิ่มเตือนความจำ</div>
+    <div class="form-group"><label class="form-label">รายการ</label><input class="form-input" id="r-title" placeholder="สิ่งที่ต้องจำ..."></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">วันที่</label><input class="form-input" id="r-date" type="date"></div>
+      <div class="form-group"><label class="form-label">ความสำคัญ</label><select class="form-input" id="r-priority"><option value="high">ด่วนมาก</option><option value="med" selected>ปานกลาง</option><option value="low">ทั่วไป</option></select></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-reminder')">ยกเลิก</button><button class="btn btn-primary" style="flex:2;" onclick="saveReminder()">บันทึก</button></div>
+  </div>
 </div>
-<!-- Modal: เพิ่มโน้ต -->
+
 <div class="modal-overlay" id="modal-note">
-    <!-- ฟอร์มโน้ต -->
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">เพิ่มโน้ต</div>
+    <div class="form-group"><label class="form-label">หัวข้อ</label><input class="form-input" id="n-title" placeholder="หัวข้อโน้ต..."></div>
+    <div class="form-group"><label class="form-label">เนื้อหา</label><textarea class="form-input" id="n-body" rows="4" placeholder="เขียนอะไรก็ได้..." style="resize:none;"></textarea></div>
+    <div class="form-group"><label class="form-label">สี</label><div style="display:flex;gap:8px;">
+      <div class="color-pick" data-c="#FFF3CD" style="width:28px;height:28px;border-radius:50%;background:#FFF3CD;cursor:pointer;border:2px solid #D4890A;"></div>
+      <div class="color-pick" data-c="#D8EDEA" style="width:28px;height:28px;border-radius:50%;background:#D8EDEA;cursor:pointer;border:2px solid transparent;"></div>
+      <div class="color-pick" data-c="#FDECEA" style="width:28px;height:28px;border-radius:50%;background:#FDECEA;cursor:pointer;border:2px solid transparent;"></div>
+      <div class="color-pick" data-c="#EDE9FE" style="width:28px;height:28px;border-radius:50%;background:#EDE9FE;cursor:pointer;border:2px solid transparent;"></div>
+      <div class="color-pick" data-c="#F0EFEB" style="width:28px;height:28px;border-radius:50%;background:#F0EFEB;cursor:pointer;border:2px solid transparent;"></div>
+    </div><input type="hidden" id="n-color" value="#FFF3CD"></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-note')">ยกเลิก</button><button class="btn btn-primary" style="flex:2;" onclick="saveNote()">บันทึก</button></div>
+  </div>
 </div>
-<!-- Modal: แก้ไขข้อมูลรถ -->
+
 <div class="modal-overlay" id="modal-car">
-    <!-- ฟอร์มข้อมูลรถ -->
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">ข้อมูลรถยนต์</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">รุ่นรถ</label><input class="form-input" id="ce-model" placeholder="Toyota Yaris..."></div>
+      <div class="form-group"><label class="form-label">ทะเบียน</label><input class="form-input" id="ce-plate" placeholder="กข 1234"></div>
+    </div>
+    <div class="form-group"><label class="form-label">ราคาเต็มรถ (฿)</label><input class="form-input" id="ce-price" type="number" placeholder="0"></div>
+    <div class="form-group"><label class="form-label">วันที่ต่อภาษี</label><input class="form-input" id="ce-tax-renew" type="date"></div>
+    <div class="form-group"><label class="form-label">วันสิ้นสุดภาษี</label><input class="form-input" id="ce-tax-expire" type="date"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">ประเภทประกัน</label><select class="form-input" id="ce-ins-type"><option value="">เลือก</option><option value="ชั้น 1">ชั้น 1</option><option value="ชั้น 2">ชั้น 2</option><option value="ชั้น 2+">ชั้น 2+</option><option value="ชั้น 3">ชั้น 3</option><option value="ชั้น 3+">ชั้น 3+</option></select></div>
+      <div class="form-group"><label class="form-label">ปีประกัน</label><input class="form-input" id="ce-ins-year" type="number" placeholder="2567"></div>
+    </div>
+    <div class="form-group"><label class="form-label">วันสิ้นสุดประกัน</label><input class="form-input" id="ce-ins-expire" type="date"></div>
+    <div class="form-group"><label class="form-label">วันหมดอายุใบขับขี่</label><input class="form-input" id="ce-license-expire" type="date"></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-car')">ยกเลิก</button><button class="btn btn-primary" style="flex:2;" onclick="saveCarData()">บันทึก</button></div>
+  </div>
 </div>
+
 <script>
-/* ========================================
-   JAVASCRIPT SECTION
-   ส่วน Logic และ Functionality ของแอป
-======================================== */
-// ========================================
-// 1. DATA MANAGEMENT
-// จัดการข้อมูลและ localStorage
-// ========================================
-// โครงสร้างข้อมูลหลักของแอป
-let data = {
-    budgets: [],    // งบประมาณ
-    passwords: [],  // รหัสผ่าน
-    reminders: [],  // เตือนความจำ
-    notes: [],      // โน้ต
-    bills: []       // บิลประจำเดือน
-};
-// ข้อมูลบิลเริ่มต้น
-const DEFAULT_BILLS = [
-    {name:'ค่าเช่าบ้าน', amount:0, due:1, cat:'housing', note:'', paid:false},
-    {name:'ค่างวดรถ', amount:0, due:5, cat:'vehicle', note:'', paid:false},
-    {name:'ค่าอินเตอร์เน็ต', amount:0, due:10, cat:'utility', note:'', paid:false},
-    // ... รายการอื่นๆ
+// DATA
+let data={budgets:[],passwords:[],reminders:[],notes:[],bills:[]};
+const DEFAULT_BILLS=[
+  {name:'ค่าเช่าบ้าน',amount:0,due:1,cat:'housing',note:'',paid:false},
+  {name:'ค่างวดรถ',amount:0,due:5,cat:'vehicle',note:'',paid:false},
+  {name:'ค่าอินเตอร์เน็ต',amount:0,due:10,cat:'utility',note:'',paid:false},
+  {name:'ค่าผ่อนเกม',amount:0,due:15,cat:'entertainment',note:'',paid:false},
+  {name:'ค่าการศึกษา',amount:0,due:10,cat:'education',note:'',paid:false},
+  {name:'ค่างวดทอง',amount:0,due:5,cat:'investment',note:'',paid:false},
+  {name:'ค่าน้ำมัน',amount:0,due:0,cat:'vehicle',note:'เติมสม่ำเสมอ',paid:false},
+  {name:'ค่ากินรายเดือน',amount:0,due:0,cat:'food',note:'',paid:false},
+  {name:'บัญชีร้านอาหาร',amount:0,due:30,cat:'business',note:'',paid:false},
 ];
-// โหลดข้อมูลจาก localStorage
-try {
-    const savedData = localStorage.getItem('myspace-data');
-    if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        data = {...data, ...parsedData};
-    }
-} catch(e) {
-    console.error('Error loading data:', e);
+try{const s=localStorage.getItem('myspace-data');if(s){const p=JSON.parse(s);data={...data,...p};}}catch(e){}
+if(!data.bills||!data.bills.length)data.bills=DEFAULT_BILLS.map((b,i)=>({...b,id:Date.now()+i}));
+if(!data.car)data.car={};
+function save(){try{localStorage.setItem('myspace-data',JSON.stringify(data));}catch(e){}}
+
+// DATE
+const now=new Date();
+const thD=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์'];
+const thM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+document.getElementById('today-date').textContent=`วัน${thD[now.getDay()]} ${now.getDate()} ${thM[now.getMonth()]}`;
+
+// PAGE TITLES
+const PT={overview:'ภาพรวม',bills:'กำหนดการจ่าย',passwords:'รหัสผ่าน',reminders:'เตือนความจำ',more:'เพิ่มเติม',car:'รถยนต์ของฉัน'};
+
+function showPage(id,navEl){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(navEl)navEl.classList.add('active');
+  document.getElementById('page-title').textContent=PT[id]||id;
+  document.getElementById('fab-btn').style.display=id==='car'?'none':'';
+  if(id==='overview')renderOverview();
+  if(id==='bills')renderBills();
+  if(id==='passwords')renderPasswords();
+  if(id==='reminders')renderReminders();
+  if(id==='more'){renderBudget();renderNotes();renderMoreCarPreview();}
+  if(id==='car')renderCarPage();
 }
-// ตั้งค่าบิลเริ่มต้นถ้ายังไม่มี
-if (!data.bills || !data.bills.length) {
-    data.bills = DEFAULT_BILLS.map((b, i) => ({...b, id: Date.now() + i}));
+
+function openCarPage(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-car').classList.add('active');
+  document.getElementById('page-title').textContent='รถยนต์ของฉัน';
+  document.getElementById('fab-btn').style.display='none';
+  renderCarPage();
 }
-// ตั้งค่าข้อมูลรถเริ่มต้น
-if (!data.car) data.car = {};
-// ฟังก์ชันบันทึกข้อมูลลง localStorage
-function save() {
-    try {
-        localStorage.setItem('myspace-data', JSON.stringify(data));
-    } catch(e) {
-        console.error('Error saving data:', e);
-    }
+
+function switchMoreTab(btn,tabId){
+  document.querySelectorAll('#page-more .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['tab-m-budget','tab-m-summary'].forEach(t=>{const el=document.getElementById(t);if(el)el.style.display='none';});
+  document.getElementById(tabId).style.display='block';
+  if(tabId==='tab-m-summary')renderBudgetSummary();
 }
-// ========================================
-// 2. DATE & TIME UTILITIES
-// จัดการวันที่และเวลา
-// ========================================
-const now = new Date();
-const thDays = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์'];
-const thMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-// แสดงวันที่ปัจจุบันใน header
-document.getElementById('today-date').textContent = 
-    `วัน${thDays[now.getDay()]} ${now.getDate()} ${thMonths[now.getMonth()]}`;
-// ========================================
-// 3. PAGE NAVIGATION
-// ระบบนำทางหน้า
-// ========================================
-const PAGE_TITLES = {
-    overview: 'ภาพรวม',
-    bills: 'กำหนดการจ่าย',
-    passwords: 'รหัสผ่าน',
-    reminders: 'เตือนความจำ',
-    more: 'เพิ่มเติม',
-    car: 'รถยนต์ของฉัน'
+
+// MODALS
+function openAddModal(){document.getElementById('modal-add').classList.add('open');}
+function openBudgetModal(){document.getElementById('modal-budget').classList.add('open');}
+function openPassModal(){document.getElementById('modal-pass').classList.add('open');}
+function openReminderModal(){document.getElementById('modal-reminder').classList.add('open');}
+function openNoteModal(){document.getElementById('modal-note').classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function openBillModal(id){
+  document.getElementById('bill-edit-id').value=id||'';
+  if(id){const b=data.bills.find(x=>x.id===id);document.getElementById('bill-modal-title').textContent='แก้ไขรายการ';document.getElementById('bill-name').value=b.name;document.getElementById('bill-amount').value=b.amount;document.getElementById('bill-due').value=b.due||'';document.getElementById('bill-cat').value=b.cat;document.getElementById('bill-note').value=b.note||'';}
+  else{document.getElementById('bill-modal-title').textContent='เพิ่มบิล';['bill-name','bill-amount','bill-due','bill-note'].forEach(i=>document.getElementById(i).value='');document.getElementById('bill-cat').value='other';}
+  document.getElementById('modal-bill').classList.add('open');
+}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+document.querySelectorAll('.color-pick').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.color-pick').forEach(x=>x.style.border='2px solid transparent');c.style.border='2px solid var(--text)';document.getElementById('n-color').value=c.dataset.c;}));
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+
+// SVG ICONS
+const CI={
+  housing:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>`,
+  vehicle:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-4h10l2 4h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg>`,
+  utility:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/></svg>`,
+  entertainment:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h4M8 10v4M15 11h.01M17 13h.01"/></svg>`,
+  education:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
+  investment:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17"/><polyline points="16,7 22,7 22,13"/></svg>`,
+  food:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`,
+  business:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>`,
+  other:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
 };
-/**
- * แสดงหน้าที่เลือก
- * @param {string} id - ID ของหน้า
- * @param {HTMLElement} navEl - Element ของปุ่ม navigation
- */
-function showPage(id, navEl) {
-    // ซ่อนทุกหน้า
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-    
-    // แสดงหน้าที่เลือก
-    document.getElementById('page-' + id).classList.add('active');
-    if (navEl) navEl.classList.add('active');
-    
-    // อัปเดต title
-    document.getElementById('page-title').textContent = PAGE_TITLES[id] || id;
-    
-    // ซ่อน FAB ในหน้ารถ
-    document.getElementById('fab-btn').style.display = id === 'car' ? 'none' : '';
-    
-    // เรนเดอร์ข้อมูลของแต่ละหน้า
-    if (id === 'overview') renderOverview();
-    if (id === 'bills') renderBills();
-    if (id === 'passwords') renderPasswords();
-    if (id === 'reminders') renderReminders();
-    if (id === 'more') {
-        renderBudget();
-        renderNotes();
-        renderMoreCarPreview();
-    }
-    if (id === 'car') renderCarPage();
+const CL={housing:'ที่อยู่อาศัย',vehicle:'ยานพาหนะ',utility:'สาธารณูปโภค',entertainment:'บันเทิง',education:'การศึกษา',investment:'ลงทุน/ออม',food:'อาหาร',business:'ธุรกิจ',other:'อื่นๆ'};
+const DEL=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+const EDIT=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+const CHK=`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20,6 9,17 4,12"/></svg>`;
+
+// BILLS
+function saveBill(){
+  const eid=document.getElementById('bill-edit-id').value;
+  const name=document.getElementById('bill-name').value.trim();
+  const amount=parseFloat(document.getElementById('bill-amount').value)||0;
+  const due=parseInt(document.getElementById('bill-due').value)||0;
+  const cat=document.getElementById('bill-cat').value;
+  const note=document.getElementById('bill-note').value.trim();
+  if(!name)return alert('กรุณาใส่ชื่อรายการ');
+  if(eid){const b=data.bills.find(x=>x.id==eid);if(b){b.name=name;b.amount=amount;b.due=due;b.cat=cat;b.note=note;}}
+  else data.bills.push({id:Date.now(),name,amount,due,cat,note,paid:false});
+  save();closeModal('modal-bill');renderBills();renderOverview();updateBillsBadge();showToast('บันทึกแล้ว');
 }
-// ========================================
-// 4. MODAL MANAGEMENT
-// จัดการหน้าต่าง popup
-// ========================================
-function openAddModal() {
-    document.getElementById('modal-add').classList.add('open');
-}
-function closeModal(id) {
-    document.getElementById(id).classList.remove('open');
-}
-// ปิด modal เมื่อคลิกพื้นหลัง
-document.querySelectorAll('.modal-overlay').forEach(modal => {
-    modal.addEventListener('click', e => {
-        if (e.target === modal) {
-            modal.classList.remove('open');
-        }
-    });
-});
-// ========================================
-// 5. TOAST NOTIFICATION
-// แสดงการแจ้งเตือนชั่วคราว
-// ========================================
-function showToast(msg) {
-    const toast = document.getElementById('toast');
-    toast.textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2000);
-}
-// ========================================
-// 6. SVG ICONS LIBRARY
-// ไอคอนสำหรับหมวดหมู่ต่างๆ
-// ========================================
-const CATEGORY_ICONS = {
-    housing: `<svg>...</svg>`,    // บ้าน
-    vehicle: `<svg>...</svg>`,    // รถ
-    utility: `<svg>...</svg>`,    // สาธารณูปโภค
-    // ... ไอคอนอื่นๆ
-};
-const CATEGORY_LABELS = {
-    housing: 'ที่อยู่อาศัย',
-    vehicle: 'ยานพาหนะ',
-    utility: 'สาธารณูปโภค',
-    // ... ป้ายกำกับอื่นๆ
-};
-// ========================================
-// 7. BILLS MANAGEMENT
-// ระบบจัดการบิล
-// ========================================
-/**
- * บันทึกบิลใหม่หรืออัปเดตบิลที่มีอยู่
- */
-function saveBill() {
-    const editId = document.getElementById('bill-edit-id').value;
-    const name = document.getElementById('bill-name').value.trim();
-    const amount = parseFloat(document.getElementById('bill-amount').value) || 0;
-    const due = parseInt(document.getElementById('bill-due').value) || 0;
-    const cat = document.getElementById('bill-cat').value;
-    const note = document.getElementById('bill-note').value.trim();
-    
-    if (!name) {
-        alert('กรุณาใส่ชื่อรายการ');
-        return;
-    }
-    
-    if (editId) {
-        // แก้ไขบิลที่มีอยู่
-        const bill = data.bills.find(x => x.id == editId);
-        if (bill) {
-            bill.name = name;
-            bill.amount = amount;
-            bill.due = due;
-            bill.cat = cat;
-            bill.note = note;
-        }
-    } else {
-        // เพิ่มบิลใหม่
-        data.bills.push({
-            id: Date.now(),
-            name,
-            amount,
-            due,
-            cat,
-            note,
-            paid: false
-        });
-    }
-    
-    save();
-    closeModal('modal-bill');
-    renderBills();
-    renderOverview();
-    updateBillsBadge();
-    showToast('บันทึกแล้ว');
-}
-/**
- * สลับสถานะการจ่ายบิล
- */
-function toggleBillPaid(id) {
-    const bill = data.bills.find(x => x.id === id);
-    if (bill) {
-        bill.paid = !bill.paid;
-        save();
-        renderBills();
-        renderOverview();
-        updateBillsBadge();
-    }
-}
-/**
- * ลบบิล
- */
-function deleteBill(id) {
-    if (confirm('ต้องการลบบิลนี้?')) {
-        data.bills = data.bills.filter(x => x.id !== id);
-        save();
-        renderBills();
-        renderOverview();
-        updateBillsBadge();
-    }
-}
-/**
- * แสดงรายการบิลทั้งหมด
- */
-function renderBills() {
-    const container = document.getElementById('bills-list-container');
-    if (!container) return;
-    
-    // คำนวณสถิติ
-    const totalAmount = data.bills.reduce((sum, b) => sum + b.amount, 0);
-    const paidAmount = data.bills.filter(b => b.paid).reduce((sum, b) => sum + b.amount, 0);
-    const unpaidAmount = totalAmount - paidAmount;
-    const paidCount = data.bills.filter(b => b.paid).length;
-    const unpaidCount = data.bills.length - paidCount;
-    const paidPercent = totalAmount ? Math.round(paidAmount / totalAmount * 100) : 0;
-    
-    // อัปเดตสถิติ
-    updateElement('bill-total-amount', '฿' + totalAmount.toLocaleString());
-    updateElement('bill-paid-amount', '฿' + paidAmount.toLocaleString());
-    updateElement('bill-unpaid-amount', '฿' + unpaidAmount.toLocaleString());
-    updateElement('bill-paid-count', paidCount + ' รายการ');
-    updateElement('bill-unpaid-count', unpaidCount + ' รายการ');
-    
-    // อัปเดต progress bar
-    const progressBar = document.getElementById('bill-paid-bar');
-    if (progressBar) progressBar.style.width = paidPercent + '%';
-    
-    // แสดงรายการบิลจัดกลุ่มตามหมวดหมู่
-    if (!data.bills.length) {
-        container.innerHTML = '<div class="list-card"><div class="empty">ยังไม่มีบิล</div></div>';
-        return;
-    }
-    
-    // จัดกลุ่มบิลตามหมวดหมู่
-    const groups = {};
-    data.bills.forEach(bill => {
-        if (!groups[bill.cat]) groups[bill.cat] = [];
-        groups[bill.cat].push(bill);
-    });
-    
-    // สร้าง HTML สำหรับแต่ละกลุ่ม
-    container.innerHTML = Object.entries(groups).map(([cat, bills]) => {
-        // HTML สำหรับแต่ละหมวดหมู่
-        // ... (ละเว้นเพื่อความกระชับ)
+function toggleBillPaid(id){const b=data.bills.find(x=>x.id===id);if(b){b.paid=!b.paid;save();renderBills();renderOverview();updateBillsBadge();}}
+function deleteBill(id){data.bills=data.bills.filter(x=>x.id!==id);save();renderBills();renderOverview();updateBillsBadge();}
+
+function renderBills(){
+  const c=document.getElementById('bills-list-container');if(!c)return;
+  const ta=data.bills.reduce((s,b)=>s+b.amount,0);
+  const pa=data.bills.filter(b=>b.paid).reduce((s,b)=>s+b.amount,0);
+  const ua=ta-pa,pc=data.bills.filter(b=>b.paid).length,pct=ta?Math.round(pa/ta*100):0;
+  const u=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  u('bill-total-amount','฿'+ta.toLocaleString());u('bill-paid-amount','฿'+pa.toLocaleString());
+  u('bill-unpaid-amount','฿'+ua.toLocaleString());u('bill-paid-count',pc+' รายการ');u('bill-unpaid-count',(data.bills.length-pc)+' รายการ');
+  const bar=document.getElementById('bill-paid-bar');if(bar)bar.style.width=pct+'%';
+  if(!data.bills.length){c.innerHTML='<div class="list-card"><div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg><div class="empty-text">ยังไม่มีบิล</div></div></div>';return;}
+  const today=new Date().getDate();
+  const groups={};
+  data.bills.forEach(b=>{if(!groups[b.cat])groups[b.cat]=[];groups[b.cat].push(b);});
+  c.innerHTML=Object.entries(groups).map(([cat,bills])=>{
+    const ct=bills.reduce((s,b)=>s+b.amount,0);
+    const rows=bills.map(b=>{
+      const isO=b.due>0&&today>b.due&&!b.paid,isS=b.due>0&&today>=b.due-3&&today<=b.due&&!b.paid;
+      let badge='';
+      if(b.paid)badge=`<span class="tag tag-light">จ่ายแล้ว</span>`;
+      else if(isO)badge=`<span class="tag tag-dark">เลยกำหนด</span>`;
+      else if(isS)badge=`<span class="tag tag-mid">ใกล้ครบ</span>`;
+      else if(b.due>0)badge=`<span class="tag tag-light">วันที่ ${b.due}</span>`;
+      return `<div class="list-item">
+        <button class="check-btn ${b.paid?'done':''}" onclick="toggleBillPaid(${b.id})">${b.paid?CHK:''}</button>
+        <div class="item-info"><div class="item-name" style="${b.paid?'text-decoration:line-through;color:var(--text-muted);':''}">${b.name}</div>${b.note?`<div class="item-sub">${b.note}</div>`:''}</div>
+        ${badge}
+        <div class="item-right" style="margin-left:4px;"><div class="item-amount">฿${b.amount.toLocaleString()}</div></div>
+        <button class="icon-btn" onclick="openBillModal(${b.id})">${EDIT}</button>
+        <button class="icon-btn" onclick="deleteBill(${b.id})">${DEL}</button>
+      </div>`;
     }).join('');
+    return `<div class="list-card" style="margin-bottom:12px;"><div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px;border-bottom:1px solid var(--border);"><div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">${CI[cat]||''}${CL[cat]||cat}</div><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);">฿${ct.toLocaleString()}</div></div>${rows}</div>`;
+  }).join('');
 }
-/**
- * อัปเดต badge จำนวนบิลที่ยังไม่จ่าย
- */
-function updateBillsBadge() {
-    const unpaidCount = data.bills.filter(b => !b.paid).length;
-    const badge = document.getElementById('bills-badge');
-    if (!badge) return;
-    
-    if (unpaidCount > 0) {
-        badge.textContent = unpaidCount;
-        badge.style.display = 'flex';
-    } else {
-        badge.style.display = 'none';
-    }
+function updateBillsBadge(){const u=data.bills.filter(b=>!b.paid).length;const badge=document.getElementById('bills-badge');if(!badge)return;if(u>0){badge.textContent=u;badge.style.display='flex';}else badge.style.display='none';}
+function resetAllBills(){if(!confirm('รีเซ็ตสถานะทั้งหมด?'))return;data.bills.forEach(b=>b.paid=false);save();renderBills();renderOverview();updateBillsBadge();showToast('รีเซ็ตแล้ว');}
+
+// BUDGET
+function saveBudget(){
+  const name=document.getElementById('b-name').value.trim();
+  const spent=parseFloat(document.getElementById('b-spent').value)||0;
+  const limit=parseFloat(document.getElementById('b-limit').value)||0;
+  if(!name)return alert('กรุณาใส่ชื่อหมวด');
+  data.budgets.push({id:Date.now(),name,spent,limit});save();closeModal('modal-budget');
+  ['b-name','b-spent','b-limit'].forEach(id=>document.getElementById(id).value='');
+  renderBudget();renderOverview();showToast('เพิ่มแล้ว');
 }
-/**
- * รีเซ็ตสถานะบิลทั้งหมดสำหรับเดือนใหม่
- */
-function resetAllBills() {
-    if (!confirm('รีเซ็ตสถานะทั้งหมด?')) return;
-    
-    data.bills.forEach(b => b.paid = false);
-    save();
-    renderBills();
-    renderOverview();
-    updateBillsBadge();
-    showToast('รีเซ็ตแล้ว');
+function deleteBudget(id){data.budgets=data.budgets.filter(b=>b.id!==id);save();renderBudget();renderOverview();}
+function renderBudget(){
+  const c=document.getElementById('budget-list-container');if(!c)return;
+  if(!data.budgets.length){c.innerHTML='<div class="empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><div class="empty-text">ยังไม่มีหมวด</div></div>';return;}
+  c.innerHTML=data.budgets.map(b=>{
+    const pct=b.limit?Math.min(100,Math.round(b.spent/b.limit*100)):0,over=b.limit&&b.spent>b.limit;
+    return `<div class="list-item"><div class="item-info"><div class="item-name">${b.name}</div>${b.limit?`<div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${over?'var(--danger)':'var(--text)'};"></div></div>`:''}<div class="item-sub">${pct}%${b.limit?` ของ ฿${b.limit.toLocaleString()}`:''}${over?' (เกินงบ!)':''}</div></div><div class="item-right"><div class="item-amount" style="color:${over?'var(--danger)':'var(--text)'};">฿${b.spent.toLocaleString()}</div>${b.limit?`<div class="item-sub">/ ฿${b.limit.toLocaleString()}</div>`:''}</div><button class="icon-btn" onclick="deleteBudget(${b.id})">${DEL}</button></div>`;
+  }).join('');
 }
-// ========================================
-// 8. BUDGET MANAGEMENT
-// ระบบจัดการงบประมาณ
-// ========================================
-/**
- * บันทึกงบประมาณใหม่
- */
-function saveBudget() {
-    const name = document.getElementById('b-name').value.trim();
-    const spent = parseFloat(document.getElementById('b-spent').value) || 0;
-    const limit = parseFloat(document.getElementById('b-limit').value) || 0;
-    
-    if (!name) {
-        alert('กรุณาใส่ชื่อหมวด');
-        return;
-    }
-    
-    data.budgets.push({
-        id: Date.now(),
-        name,
-        spent,
-        limit
-    });
-    
-    save();
-    closeModal('modal-budget');
-    
-    // เคลียร์ฟอร์ม
-    ['b-name', 'b-spent', 'b-limit'].forEach(id => {
-        document.getElementById(id).value = '';
-    });
-    
-    renderBudget();
-    renderOverview();
-    showToast('เพิ่มแล้ว');
+function renderBudgetSummary(){
+  const c=document.getElementById('budget-summary-content');if(!c||!data.budgets.length)return;
+  const total=data.budgets.reduce((s,b)=>s+b.spent,0),tl=data.budgets.reduce((s,b)=>s+b.limit,0);
+  c.innerHTML=`<div style="margin-bottom:16px;"><div style="font-size:28px;font-weight:700;letter-spacing:-1px;">฿${total.toLocaleString()}</div><div style="font-size:12px;color:var(--text-muted);">${tl?`จาก ฿${tl.toLocaleString()}`:'รวมทั้งหมด'}</div></div>`+data.budgets.map(b=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><div style="width:8px;height:8px;border-radius:50%;background:var(--text);flex-shrink:0;"></div><span style="flex:1;font-size:13px;">${b.name}</span><span style="font-family:'DM Mono',monospace;font-size:12px;">฿${b.spent.toLocaleString()}</span><span style="font-size:11px;color:var(--text-muted);width:30px;text-align:right;">${total?Math.round(b.spent/total*100):0}%</span></div>`).join('');
 }
-/**
- * แสดงรายการงบประมาณ
- */
-function renderBudget() {
-    const container = document.getElementById('budget-list-container');
-    if (!container) return;
-    
-    if (!data.budgets.length) {
-        container.innerHTML = '<div class="empty">ยังไม่มีหมวด</div>';
-        return;
-    }
-    
-    container.innerHTML = data.budgets.map(budget => {
-        const percent = budget.limit ? 
-            Math.min(100, Math.round(budget.spent / budget.limit * 100)) : 0;
-        const isOver = budget.limit && budget.spent > budget.limit;
-        
-        // สร้าง HTML สำหรับแต่ละงบประมาณ
-        // ... (ละเว้นเพื่อความกระชับ)
-    }).join('');
+
+// PASSWORDS
+function savePassword(){
+  const name=document.getElementById('p-name').value.trim(),user=document.getElementById('p-user').value.trim(),pass=document.getElementById('p-pass').value,note=document.getElementById('p-note').value.trim();
+  if(!name||!pass)return alert('กรุณาใส่ชื่อและรหัสผ่าน');
+  data.passwords.push({id:Date.now(),name,user,pass,note});save();closeModal('modal-pass');
+  ['p-name','p-user','p-pass','p-note'].forEach(id=>document.getElementById(id).value='');
+  renderPasswords();renderOverview();showToast('บันทึกแล้ว');
 }
-// ========================================
-// 9. PASSWORD MANAGEMENT
-// ระบบจัดการรหัสผ่าน
-// ========================================
-/**
- * บันทึกรหัสผ่านใหม่
- */
-function savePassword() {
-    const name = document.getElementById('p-name').value.trim();
-    const user = document.getElementById('p-user').value.trim();
-    const pass = document.getElementById('p-pass').value;
-    const note = document.getElementById('p-note').value.trim();
-    
-    if (!name || !pass) {
-        alert('กรุณาใส่ชื่อและรหัสผ่าน');
-        return;
-    }
-    
-    data.passwords.push({
-        id: Date.now(),
-        name,
-        user,
-        pass,
-        note
-    });
-    
-    save();
-    closeModal('modal-pass');
-    
-    // เคลียร์ฟอร์ม
-    ['p-name', 'p-user', 'p-pass', 'p-note'].forEach(id => {
-        document.getElementById(id).value = '';
-    });
-    
-    renderPasswords();
-    renderOverview();
-    showToast('บันทึกแล้ว');
+function deletePassword(id){data.passwords=data.passwords.filter(p=>p.id!==id);save();renderPasswords();renderOverview();}
+function toggleShowPass(id){const el=document.querySelector(`[data-pass-id="${id}"]`),e=data.passwords.find(p=>p.id===id);if(el&&e)el.textContent=el.textContent==='••••••••'?e.pass:'••••••••';}
+function copyPass(id){const e=data.passwords.find(p=>p.id===id);navigator.clipboard.writeText(e.pass).then(()=>showToast('คัดลอกแล้ว'));}
+function renderPasswords(){
+  const c=document.getElementById('password-list-container');if(!c)return;
+  if(!data.passwords.length){c.innerHTML='<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="15" r="5"/><path d="M21 3L11.6 12.4M16 8l2 2M19 5l2 2"/></svg><div class="empty-text">ยังไม่มีรหัสที่บันทึก</div></div>';return;}
+  c.innerHTML=data.passwords.map(p=>`<div class="list-item"><div class="item-icon" style="font-size:15px;font-weight:700;">${p.name[0].toUpperCase()}</div><div class="item-info"><div class="item-name">${p.name}</div><div class="item-sub">${p.user||p.note||'—'}</div><div class="pass-value" data-pass-id="${p.id}">••••••••</div></div><div class="item-action"><button class="icon-btn" onclick="toggleShowPass(${p.id})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button><button class="icon-btn" onclick="copyPass(${p.id})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button><button class="icon-btn" onclick="deletePassword(${p.id})">${DEL}</button></div></div>`).join('');
 }
-/**
- * แสดง/ซ่อนรหัสผ่าน
- */
-function toggleShowPass(id) {
-    const element = document.querySelector(`[data-pass-id="${id}"]`);
-    const password = data.passwords.find(p => p.id === id);
-    
-    if (element && password) {
-        element.textContent = element.textContent === '••••••••' ? 
-            password.pass : '••••••••';
-    }
+
+// REMINDERS
+function saveReminder(){
+  const title=document.getElementById('r-title').value.trim(),date=document.getElementById('r-date').value,priority=document.getElementById('r-priority').value;
+  if(!title)return alert('กรุณาใส่รายการ');
+  data.reminders.push({id:Date.now(),title,date,priority,done:false});save();closeModal('modal-reminder');
+  document.getElementById('r-title').value='';renderReminders();renderOverview();showToast('เพิ่มแล้ว');
 }
-/**
- * คัดลอกรหัสผ่านไปยัง clipboard
- */
-function copyPass(id) {
-    const password = data.passwords.find(p => p.id === id);
-    if (password) {
-        navigator.clipboard.writeText(password.pass)
-            .then(() => showToast('คัดลอกแล้ว'));
-    }
+function toggleReminder(id){const r=data.reminders.find(r=>r.id===id);if(r){r.done=!r.done;save();renderReminders();renderOverview();}}
+function deleteReminder(id){data.reminders=data.reminders.filter(r=>r.id!==id);save();renderReminders();renderOverview();}
+function renderReminders(){
+  const c=document.getElementById('reminder-list-container');if(!c)return;
+  if(!data.reminders.length){c.innerHTML='<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="empty-text">ยังไม่มีรายการ</div></div>';return;}
+  const sorted=[...data.reminders].sort((a,b)=>(a.done-b.done)||(a.priority==='high'?-1:1));
+  const tm={high:'tag-dark',med:'tag-mid',low:'tag-light'},tl={high:'ด่วน',med:'กลาง',low:'ทั่วไป'};
+  c.innerHTML=sorted.map(r=>`<div class="list-item"><button class="check-btn ${r.done?'done':''}" onclick="toggleReminder(${r.id})">${r.done?CHK:''}</button><div class="item-info"><div class="item-name" style="${r.done?'text-decoration:line-through;color:var(--text-muted);':''}">${r.title}</div>${r.date?`<div class="item-sub">${r.date}</div>`:''}</div><span class="tag ${tm[r.priority]}">${tl[r.priority]}</span><button class="icon-btn" onclick="deleteReminder(${r.id})">${DEL}</button></div>`).join('');
 }
-// ========================================
-// 10. REMINDER MANAGEMENT
-// ระบบเตือนความจำ
-// ========================================
-/**
- * บันทึกเตือนความจำใหม่
- */
-function saveReminder() {
-    const title = document.getElementById('r-title').value.trim();
-    const date = document.getElementById('r-date').value;
-    const priority = document.getElementById('r-priority').value;
-    
-    if (!title) {
-        alert('กรุณาใส่รายการ');
-        return;
-    }
-    
-    data.reminders.push({
-        id: Date.now(),
-        title,
-        date,
-        priority,
-        done: false
-    });
-    
-    save();
-    closeModal('modal-reminder');
-    document.getElementById('r-title').value = '';
-    
-    renderReminders();
-    renderOverview();
-    showToast('เพิ่มแล้ว');
+
+// NOTES
+function saveNote(){
+  const title=document.getElementById('n-title').value.trim(),body=document.getElementById('n-body').value.trim(),color=document.getElementById('n-color').value;
+  if(!title)return alert('กรุณาใส่หัวข้อ');
+  data.notes.push({id:Date.now(),title,body,color,date:new Date().toLocaleDateString('th-TH')});save();closeModal('modal-note');
+  document.getElementById('n-title').value='';document.getElementById('n-body').value='';renderNotes();showToast('บันทึกแล้ว');
 }
-// ========================================
-// 11. NOTES MANAGEMENT
-// ระบบจัดการโน้ต
-// ========================================
-/**
- * บันทึกโน้ตใหม่
- */
-function saveNote() {
-    const title = document.getElementById('n-title').value.trim();
-    const body = document.getElementById('n-body').value.trim();
-    const color = document.getElementById('n-color').value;
-    
-    if (!title) {
-        alert('กรุณาใส่หัวข้อ');
-        return;
-    }
-    
-    data.notes.push({
-        id: Date.now(),
-        title,
-        body,
-        color,
-        date: new Date().toLocaleDateString('th-TH')
-    });
-    
-    save();
-    closeModal('modal-note');
-    document.getElementById('n-title').value = '';
-    document.getElementById('n-body').value = '';
-    
-    renderNotes();
-    showToast('บันทึกแล้ว');
+function deleteNote(id){data.notes=data.notes.filter(n=>n.id!==id);save();renderNotes();}
+function renderNotes(){
+  const c=document.getElementById('notes-container');if(!c)return;
+  if(!data.notes.length){c.innerHTML='<div class="empty" style="grid-column:1/-1;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><div class="empty-text">ยังไม่มีโน้ต</div></div>';return;}
+  c.innerHTML=data.notes.map(n=>`<div class="note-card" style="background:${n.color};border:1px solid ${n.color==='#F0EFEB'?'var(--border)':'transparent'};"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div class="note-title">${n.title}</div><button onclick="deleteNote(${n.id})" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--text-muted);padding:0 0 0 4px;">x</button></div><div class="note-body">${n.body}</div><div class="note-date">${n.date}</div></div>`).join('');
 }
-// ========================================
-// 12. CAR MANAGEMENT
-// ระบบจัดการข้อมูลรถ
-// ========================================
-/**
- * บันทึกข้อมูลรถ
- */
-function saveCarData() {
-    if (!data.car) data.car = {};
-    
-    // เก็บข้อมูลจากฟอร์ม
-    data.car.model = document.getElementById('ce-model').value.trim();
-    data.car.plate = document.getElementById('ce-plate').value.trim();
-    data.car.price = parseFloat(document.getElementById('ce-price').value) || 0;
-    data.car.taxRenew = document.getElementById('ce-tax-renew').value;
-    data.car.taxExpire = document.getElementById('ce-tax-expire').value;
-    data.car.insType = document.getElementById('ce-ins-type').value;
-    data.car.insYear = document.getElementById('ce-ins-year').value;
-    data.car.insExpire = document.getElementById('ce-ins-expire').value;
-    data.car.licenseExpire = document.getElementById('ce-license-expire').value;
-    
-    save();
-    closeModal('modal-car');
-    renderCarPage();
-    renderMoreCarPreview();
-    showToast('บันทึกแล้ว');
+
+// OVERVIEW
+function renderOverview(){
+  const ts=data.budgets.reduce((s,b)=>s+b.spent,0),tl=data.budgets.reduce((s,b)=>s+b.limit,0);
+  const u=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  u('ov-spent',ts.toLocaleString());u('ov-total',tl.toLocaleString());
+  u('ov-passwords',data.passwords.length);u('ov-todos',data.reminders.filter(r=>!r.done).length);
+  const ub=data.bills.filter(b=>!b.paid);u('ov-bills-count',ub.length);
+  const bl=document.getElementById('ov-bills-list');
+  if(bl){
+    if(!ub.length){bl.innerHTML='<div class="list-item"><div class="item-info"><div class="item-name" style="color:var(--text-muted);">จ่ายครบทุกบิลแล้ว</div></div></div>';}
+    else{const today=new Date().getDate();bl.innerHTML=ub.slice(0,4).map(b=>`<div class="list-item"><div class="item-icon">${CI[b.cat]||CI.other}</div><div class="item-info"><div class="item-name">${b.name}</div><div class="item-sub">${b.due>0?(today>b.due?'เลยวันที่ '+b.due:'วันที่ '+b.due):''}</div></div><div class="item-right"><div class="item-amount">฿${b.amount.toLocaleString()}</div></div></div>`).join('');}
+  }
+  const rl=document.getElementById('ov-reminder-list');
+  if(rl){
+    const pd=data.reminders.filter(r=>!r.done).slice(0,3);
+    const tm={high:'tag-dark',med:'tag-mid',low:'tag-light'},tl2={high:'ด่วน',med:'กลาง',low:'ทั่วไป'};
+    if(!pd.length){rl.innerHTML='<div class="list-item"><div class="item-info"><div class="item-name" style="color:var(--text-muted);">ไม่มีรายการค้าง</div></div></div>';}
+    else{rl.innerHTML=pd.map(r=>`<div class="list-item"><button class="check-btn" onclick="toggleReminder(${r.id})"></button><div class="item-info"><div class="item-name">${r.title}</div>${r.date?`<div class="item-sub">${r.date}</div>`:''}</div><span class="tag ${tm[r.priority]}">${tl2[r.priority]}</span></div>`).join('');}
+  }
 }
-/**
- * จัดการการอัปโหลดรูปรถ
- */
-function handleCarImage(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        if (!data.car) data.car = {};
-        data.car.image = e.target.result;
-        save();
-        renderCarPage();
-    };
-    reader.readAsDataURL(file);
+
+// CAR
+function openCarEditModal(){
+  const c=data.car||{};
+  document.getElementById('ce-model').value=c.model||'';document.getElementById('ce-plate').value=c.plate||'';
+  document.getElementById('ce-price').value=c.price||'';document.getElementById('ce-tax-renew').value=c.taxRenew||'';
+  document.getElementById('ce-tax-expire').value=c.taxExpire||'';document.getElementById('ce-ins-type').value=c.insType||'';
+  document.getElementById('ce-ins-year').value=c.insYear||'';document.getElementById('ce-ins-expire').value=c.insExpire||'';
+  document.getElementById('ce-license-expire').value=c.licenseExpire||'';
+  document.getElementById('modal-car').classList.add('open');
 }
-/**
- * คำนวณวันที่เหลือ
- */
-function daysUntil(dateStr) {
-    if (!dateStr) return null;
-    
-    const targetDate = new Date(dateStr);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    return Math.ceil((targetDate - today) / 86400000);
+function saveCarData(){
+  if(!data.car)data.car={};
+  data.car.model=document.getElementById('ce-model').value.trim();data.car.plate=document.getElementById('ce-plate').value.trim();
+  data.car.price=parseFloat(document.getElementById('ce-price').value)||0;data.car.taxRenew=document.getElementById('ce-tax-renew').value;
+  data.car.taxExpire=document.getElementById('ce-tax-expire').value;data.car.insType=document.getElementById('ce-ins-type').value;
+  data.car.insYear=document.getElementById('ce-ins-year').value;data.car.insExpire=document.getElementById('ce-ins-expire').value;
+  data.car.licenseExpire=document.getElementById('ce-license-expire').value;
+  save();closeModal('modal-car');renderCarPage();renderMoreCarPreview();showToast('บันทึกแล้ว');
 }
-/**
- * แสดงสถานะเอกสาร
- */
-function docStatus(dateStr) {
-    const days = daysUntil(dateStr);
-    
-    if (days === null) return {text: '—'};
-    if (days < 0) return {
-        text: `! หมดอายุแล้ว (${Math.abs(days)} วัน)`,
-        color: 'var(--danger)'
-    };
-    if (days <= 30) return {
-        text: `○ เหลือ ${days} วัน`,
-        color: 'var(--warning)'
-    };
-    
-    return {
-        text: `● เหลือ ${days} วัน`,
-        color: 'var(--text-muted)'
-    };
+function handleCarImage(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{if(!data.car)data.car={};data.car.image=ev.target.result;save();renderCarPage();};r.readAsDataURL(f);}
+function handleLicenseImage(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{if(!data.car)data.car={};data.car.licenseImage=ev.target.result;save();renderCarPage();};r.readAsDataURL(f);}
+function saveCarMemo(){if(!data.car)data.car={};data.car.memo=document.getElementById('car-memo').value;save();}
+function daysUntil(d){if(!d)return null;const t=new Date(d),td=new Date();td.setHours(0,0,0,0);return Math.ceil((t-td)/864e5);}
+function fmtDate(d){if(!d)return '—';const dt=new Date(d);return `${dt.getDate()} ${thM[dt.getMonth()]} ${dt.getFullYear()+543}`;}
+function docStatus(d){const days=daysUntil(d);if(days===null)return{text:'—'};if(days<0)return{text:`! หมดอายุแล้ว (${Math.abs(days)} วัน)`,color:'var(--danger)'};if(days<=30)return{text:`○ เหลือ ${days} วัน`,color:'var(--warning)'};return{text:`● เหลือ ${days} วัน`,color:'var(--text-muted)'};}
+function renderCarPage(){
+  const c=data.car||{};
+  const pr=document.getElementById('car-img-preview'),pl=document.getElementById('car-img-placeholder');
+  if(c.image){pr.src=c.image;pr.style.display='block';pl.style.display='none';}
+  else{pr.style.display='none';pl.style.display='flex';}
+  const u=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  u('car-model-text',c.model||'ยังไม่ได้ตั้งค่า');u('car-plate-text',c.plate||'ทะเบียนรถ');u('car-plate-badge',c.plate||'—');
+  u('car-price-val',c.price?'฿'+Number(c.price).toLocaleString():'฿0');
+  const ts=docStatus(c.taxExpire);u('car-tax-renew','วันต่อ: '+fmtDate(c.taxRenew));u('car-tax-expire',fmtDate(c.taxExpire));
+  const tse=document.getElementById('car-tax-status');if(tse){tse.textContent=ts.text;tse.style.color=ts.color||'';}
+  const is=docStatus(c.insExpire);u('car-ins-type',c.insType?c.insType+(c.insYear?' ปี '+c.insYear:''):'—');u('car-ins-expire',fmtDate(c.insExpire));
+  const ise=document.getElementById('car-ins-status');if(ise){ise.textContent=is.text;ise.style.color=is.color||'';}
+  const ls=docStatus(c.licenseExpire);u('car-license-expire',fmtDate(c.licenseExpire));
+  const lse=document.getElementById('car-license-status');if(lse){lse.textContent=ls.text;lse.style.color=ls.color||'';}
+  const liw=document.getElementById('car-license-img-wrap'),lim=document.getElementById('car-license-img');
+  if(c.licenseImage&&liw&&lim){lim.src=c.licenseImage;liw.style.display='block';}
+  const memo=document.getElementById('car-memo');if(memo&&c.memo!==undefined)memo.value=c.memo;
 }
-// ========================================
-// 13. OVERVIEW PAGE
-// หน้าภาพรวม
-// ========================================
-/**
- * แสดงข้อมูลหน้าภาพรวม
- */
-function renderOverview() {
-    // คำนวณสถิติ
-    const totalSpent = data.budgets.reduce((sum, b) => sum + b.spent, 0);
-    const totalLimit = data.budgets.reduce((sum, b) => sum + b.limit, 0);
-    const unpaidBills = data.bills.filter(b => !b.paid);
-    const pendingReminders = data.reminders.filter(r => !r.done);
-    
-    // อัปเดตตัวเลขใน Hero Card
-    updateElement('ov-spent', totalSpent.toLocaleString());
-    updateElement('ov-total', totalLimit.toLocaleString());
-    updateElement('ov-passwords', data.passwords.length);
-    updateElement('ov-todos', pendingReminders.length);
-    updateElement('ov-bills-count', unpaidBills.length);
-    
-    // แสดงบิลค้างจ่าย
-    const billsList = document.getElementById('ov-bills-list');
-    if (billsList) {
-        if (!unpaidBills.length) {
-            billsList.innerHTML = '<div class="list-item">จ่ายครบทุกบิลแล้ว</div>';
-        } else {
-            // แสดงบิลที่ยังไม่จ่าย (สูงสุด 4 รายการ)
-            // ... (ละเว้นเพื่อความกระชับ)
-        }
-    }
-    
-    // แสดงเตือนความจำ
-    const reminderList = document.getElementById('ov-reminder-list');
-    if (reminderList) {
-        if (!pendingReminders.length) {
-            reminderList.innerHTML = '<div class="list-item">ไม่มีรายการค้าง</div>';
-        } else {
-            // แสดงเตือนความจำที่ยังไม่เสร็จ (สูงสุด 3 รายการ)
-            // ... (ละเว้นเพื่อความกระชับ)
-        }
-    }
-}
-// ========================================
-// 14. UTILITY FUNCTIONS
-// ฟังก์ชันช่วยเหลือ
-// ========================================
-/**
- * อัปเดตข้อความใน element
- */
-function updateElement(id, value) {
-    const element = document.getElementById(id);
-    if (element) element.textContent = value;
-}
-/**
- * ฟอร์แมตวันที่เป็นภาษาไทย
- */
-function formatDate(dateStr) {
-    if (!dateStr) return '—';
-    
-    const date = new Date(dateStr);
-    return `${date.getDate()} ${thMonths[date.getMonth()]} ${date.getFullYear() + 543}`;
-}
-// ========================================
-// 15. INITIALIZATION
-// เริ่มต้นแอปพลิเคชัน
-// ========================================
-// เริ่มแสดงหน้าภาพรวม
-renderOverview();
-renderBills();
-updateBillsBadge();
-// บันทึกข้อมูลเริ่มต้น
-save();
+function renderMoreCarPreview(){const c=data.car||{};const m=document.getElementById('more-car-model'),p=document.getElementById('more-car-plate');if(m)m.textContent=c.model||'ยังไม่ได้ตั้งค่ารถ';if(p)p.textContent=c.plate?'ทะเบียน: '+c.plate:'แตะเพื่อดูข้อมูล';}
+
+// INIT
+renderOverview();renderBills();updateBillsBadge();save();
 </script>
 </body>
 </html>
-
-
